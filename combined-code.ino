@@ -91,7 +91,8 @@ void loop()
         Serial.print(pox.getHeartRate());
         int SpO2 = int(pox.getSpO2());
         String SpO2Char = String(SpO2);
-        testdrawtext("Oxygen Level:", ST77XX_WHITE);
+        String SpO2String = "Oxygen level: " + SpO2Char;
+        testdrawtext("Oxygen level:", ST77XX_WHITE);
         testdrawtext(SpO2Char, ST77XX_WHITE);
         Serial.print("bpm / SpO2:");
         Serial.print(pox.getSpO2());
