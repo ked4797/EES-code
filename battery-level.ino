@@ -1,7 +1,6 @@
 void setup() {
-  // put your setup code here, to run once:
    Serial.begin(9600);     //  opens serial port, sets data rate to 9600 bps
-   lcd.begin(16, 2);       //// set up the LCD's number of columns and rows: 
+   lcd.begin(16, 2);       
    pinMode(A0,OUTPUT);
    pinMode(A1,OUTPUT);
    pinMode(A2,OUTPUT);
