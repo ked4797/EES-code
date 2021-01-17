@@ -1,8 +1,6 @@
-// Basic demo for accelerometer/gyro readings from Adafruit LSM6DS33
-
 #include <Adafruit_LSM6DSOX.h>
 
-Adafruit_LSM6DSOX lsm; // can use any LSM6DS/ISM330 family chip!
+Adafruit_LSM6DSOX lsm;
 
 // For SPI mode, we need a CS pin
 #define LSM_CS 12
