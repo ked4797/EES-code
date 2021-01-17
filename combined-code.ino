@@ -85,8 +85,8 @@ void loop()
         tft.fillScreen(ST77XX_BLACK);
         int heartRate = int(pox.getHeartRate());
         String heartRateChar = String(heartRate);
-        testdrawtext("Heart rate:", ST77XX_WHITE);
-        testdrawtext(heartRateChar, ST77XX_WHITE);
+        String heartRateString = "Heart rate: " + heartRateChar;
+        testdrawtext(heartRateString, ST77XX_WHITE);
         Serial.print("Heart rate:");
         Serial.print(pox.getHeartRate());
         int SpO2 = int(pox.getSpO2());
