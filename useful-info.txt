@@ -1,0 +1,10 @@
+for the display, if you want to change the colour, you can use a colour name prefaced by ST77XX - eg. ST77XX_BLACK
+These are the colours that I know it will accept as they're used in the sample code, there are probably more:
+- Black
+- White
+- Magenta
+- Yellow 
+- Green
+- Red
+- Blue
+It takes the arguments for colours as a 16-bit unsigned integer, so their actual values must be stored somewhere, I just don't know where...
