@@ -1,26 +1,19 @@
 void setup() {
-   Serial.begin(9600);    
-   lcd.begin(16, 2);       
-   pinMode(A0,OUTPUT);
-   pinMode(A1,OUTPUT);
-   pinMode(A2,OUTPUT);
-   pinMode(A3,OUTPUT);
-   pinMode(A4,INPUT);
-   lcd.print("Voltage Level");
+  // put your setup code here, to run once:
+   Serial.begin(9600);     //  opens serial port, sets data rate to 9600 bps
+   pinMode(A0,INPUT);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //  Conversion formula for voltage
-  analogValue = analogRead (A4);
-  Serial.println(analogValue);
-  delay (1000); 
-  input_voltage = (analogValue * 5.0) / 1024.0;
-  lcd.setCursor(0, 1);
-  lcd.print("Voltage= ");
-  lcd.print(input_voltage);
-  Serial.println(input_voltage);
-  delay(100);
+  printVolts();
+}
 
-    
+void printVolts()
+{
+  int sensorValue = analogRead(A0); //read the A0 pin value
+  float voltage = sensorValue * (8 / 1023.00); //convert the value to a true voltage.
+  Serial.print("voltage = ");
+  Serial.print(voltage); //print the voltage to LCD
+  Serial.println(" V");
+  delay(1000);
 }
