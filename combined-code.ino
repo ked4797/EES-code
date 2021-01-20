@@ -79,6 +79,9 @@ void setup()
  
 void loop()
 {
+    void oximeterreadings();
+    void oximeterreadings() {
+     
     // Make sure to call update as fast as possible
     pox.update();
     if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
@@ -97,8 +100,9 @@ void loop()
         Serial.print(pox.getSpO2());
         Serial.println("%");
  
-        tsLastReport = millis();
+        tsLastReport = millis()
     }
+  }
 }
 
 // the setup function runs once when you press reset or power the board
@@ -110,6 +114,8 @@ void setup() {
 void loop() {
     Serial.println(digitalRead(4));
     delay(20);
+    if(digitalRead(4)==0) {
+    oximeterreadings();
 }
 
 void testlines(uint16_t color) {
