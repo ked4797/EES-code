@@ -101,6 +101,17 @@ void loop()
     }
 }
 
+// the setup function runs once when you press reset or power the board
+void setup() {
+  pinMode(4, INPUT_PULLUP);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+    Serial.println(digitalRead(4));
+    delay(20);
+}
+
 void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
   for (int16_t x=0; x < tft.width(); x+=6) {
