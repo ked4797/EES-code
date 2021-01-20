@@ -79,8 +79,6 @@ void setup()
  
 void loop()
 {
-    void oximeterreadings();
-    void oximeterreadings() {
      
     // Make sure to call update as fast as possible
     pox.update();
@@ -101,23 +99,10 @@ void loop()
         Serial.println("%");
  
         tsLastReport = millis()
-    }
+    
   }
 }
 
-// the setup function runs once when you press reset or power the board
-void setup() {
-  pinMode(4, INPUT_PULLUP);
-}
-
-// the loop function runs over and over again forever
-void loop() {
-    Serial.println(digitalRead(4));
-    delay(20);
-    if(digitalRead(4)==0) {
-    oximeterreadings();
-    }
-}
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
