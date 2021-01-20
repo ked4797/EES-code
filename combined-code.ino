@@ -116,6 +116,7 @@ void loop() {
     delay(20);
     if(digitalRead(4)==0) {
     oximeterreadings();
+    }
 }
 
 void testlines(uint16_t color) {
