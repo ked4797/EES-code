@@ -75,49 +75,19 @@ void setup()
  
     // Register a callback for the beat detection
     pox.setOnBeatDetectedCallback(onBeatDetected);
+    
+    pinMode(4, INPUT_PULLUP);
 }
  
 void loop()
 {
-    void oximeterreadings();
-    void oximeterreadings() {
-     
-    // Make sure to call update as fast as possible
-    pox.update();
-    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-        tft.fillScreen(ST77XX_BLACK);
-        int heartRate = int(pox.getHeartRate());
-        String heartRateChar = String(heartRate);
-        String heartRateString = "Heart rate: " + heartRateChar;
-        testdrawtext(heartRateString, ST77XX_WHITE);
-        Serial.print("Heart rate:");
-        Serial.print(pox.getHeartRate());
-        int SpO2 = int(pox.getSpO2());
-        String SpO2Char = String(SpO2);
-        String SpO2String = "Oxygen level: " + SpO2Char;
-        testdrawtext(SpO2String, ST77XX_WHITE);
-        Serial.print("bpm / SpO2:");
-        Serial.print(pox.getSpO2());
-        Serial.println("%");
- 
-        tsLastReport = millis()
-    }
-  }
-}
-
-// the setup function runs once when you press reset or power the board
-void setup() {
-  pinMode(4, INPUT_PULLUP);
-}
-
-// the loop function runs over and over again forever
-void loop() {
     Serial.println(digitalRead(4));
     delay(20);
     if(digitalRead(4)==0) {
     oximeterreadings();
     }
 }
+
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
@@ -160,6 +130,30 @@ void testlines(uint16_t color) {
     delay(0);
   }
 }
+
+    void oximeterreadings() {
+     
+    // Make sure to call update as fast as possible
+    pox.update();
+    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+        tft.fillScreen(ST77XX_BLACK);
+        int heartRate = int(pox.getHeartRate());
+        String heartRateChar = String(heartRate);
+        String heartRateString = "Heart rate: " + heartRateChar;
+        testdrawtext(heartRateString, ST77XX_WHITE);
+        Serial.print("Heart rate:");
+        Serial.print(pox.getHeartRate());
+        int SpO2 = int(pox.getSpO2());
+        String SpO2Char = String(SpO2);
+        String SpO2String = "Oxygen level: " + SpO2Char;
+        testdrawtext(SpO2String, ST77XX_WHITE);
+        Serial.print("bpm / SpO2:");
+        Serial.print(pox.getSpO2());
+        Serial.println("%");
+ 
+        tsLastReport = millis()
+    }
+  }
 
 void testdrawtext(String text, uint16_t color) {
   tft.setCursor(0, 0);
