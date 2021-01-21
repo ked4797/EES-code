@@ -79,7 +79,6 @@ void setup()
  
 void loop()
 {
-     
     // Make sure to call update as fast as possible
     pox.update();
     if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
@@ -87,22 +86,20 @@ void loop()
         int heartRate = int(pox.getHeartRate());
         String heartRateChar = String(heartRate);
         String heartRateString = "Heart rate: " + heartRateChar;
-        testdrawtext(heartRateString, ST77XX_WHITE);
+        testdrawtext(heartRateString, ST77XX_WHITE, 0);
         Serial.print("Heart rate:");
         Serial.print(pox.getHeartRate());
         int SpO2 = int(pox.getSpO2());
         String SpO2Char = String(SpO2);
         String SpO2String = "Oxygen level: " + SpO2Char;
-        testdrawtext(SpO2String, ST77XX_WHITE);
+        testdrawtext(SpO2String, ST77XX_WHITE, 2);
         Serial.print("bpm / SpO2:");
         Serial.print(pox.getSpO2());
         Serial.println("%");
  
-        tsLastReport = millis()
-    
-  }
+        tsLastReport = millis();
+    }
 }
-
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
@@ -146,11 +143,11 @@ void testlines(uint16_t color) {
   }
 }
 
-void testdrawtext(String text, uint16_t color) {
-  tft.setCursor(0, 0);
+void testdrawtext(String text, uint16_t color, int line) {
+  tft.setCursor(0, line*10);
   tft.setTextColor(color);
   tft.setTextWrap(true);
-  tft.print(text);
+  tft.println(text);
 }
 
 void testfastlines(uint16_t color1, uint16_t color2) {
