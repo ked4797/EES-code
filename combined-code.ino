@@ -81,6 +81,8 @@ void setup()
  
     Serial.begin(9600);
     pinMode(pin, INPUT_PULLUP);
+    
+    int scroll = 0;
 }
  
 void loop()
@@ -92,7 +94,6 @@ void loop()
   duration = pulseIn(pin, LOW);
   Serial.println(duration); //in microseconds
  
-    int scroll = 0;
     
     if(scroll==0 && digitalRead(4)==0) {
      
