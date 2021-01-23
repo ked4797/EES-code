@@ -173,13 +173,13 @@ void testlines(uint16_t color) {
         int heartRate = int(pox.getHeartRate());
         String heartRateChar = String(heartRate);
         String heartRateString = "Heart rate: " + heartRateChar;
-        testdrawtext(heartRateString, ST77XX_WHITE);
+        testdrawtext(heartRateString, ST77XX_WHITE, 0);
         Serial.print("Heart rate:");
         Serial.print(pox.getHeartRate());
         int SpO2 = int(pox.getSpO2());
         String SpO2Char = String(SpO2);
         String SpO2String = "Oxygen level: " + SpO2Char;
-        testdrawtext(SpO2String, ST77XX_WHITE);
+        testdrawtext(SpO2String, ST77XX_WHITE, 2);
         Serial.print("bpm / SpO2:");
         Serial.print(pox.getSpO2());
         Serial.println("%");
@@ -188,8 +188,8 @@ void testlines(uint16_t color) {
     }
   }
 
-void testdrawtext(String text, uint16_t color) {
-  tft.setCursor(0, 0);
+void testdrawtext(String text, uint16_t color, int lines) {
+  tft.setCursor(0, 10*lines);
   tft.setTextColor(color);
   tft.setTextWrap(true);
   tft.print(text);
