@@ -95,24 +95,25 @@ void loop()
     int scroll = 0;
     
     if(scroll==0 && digitalRead(4)==0) {
+     
      tft.fillScreen(ST77XX_BLACK);
      //Function for time goes here
      scroll = 1;
-    }
- 
-    if(scroll==1 && digitalRead(4)==0) {
+     
+    } else if(scroll==1 && digitalRead(4)==0) {
+     
      tft.fillScreen(ST77XX_BLACK);
      //Function for pedometer goes here
      scroll = 2;
-    }
- 
-    if(scroll==2 && digitalRead(4)==0) {
+     
+    } else if(scroll==2 && digitalRead(4)==0) {
+     
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0
-    }
-    
-    if(duration > 2000000) {
+      
+    } else if(duration > 2000000) {
+     
     tft.fillScreen(ST77XX_BLACK);
     //Function for Bluetooth goes here
     }
