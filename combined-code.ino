@@ -36,6 +36,9 @@ void onBeatDetected()
 {
     Serial.println("Beat!");
 }
+
+int pin = 4; //For button
+unsigned long duration;
  
 void setup()
 {
@@ -60,44 +63,59 @@ void setup()
   Serial.println("done");
   delay(1000);
   
-    Serial.print("Initializing pulse oximeter..");
- 
-    // Initialize the PulseOximeter instance
-    // Failures are generally due to an improper I2C wiring, missing power supply
-    // or wrong target chip
-    if (!pox.begin()) {
-        Serial.println("FAILED");
-        for(;;);
-    } else {
-        Serial.println("SUCCESS");
-    }
-     pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
- 
-    // Register a callback for the beat detection
-    pox.setOnBeatDetectedCallback(onBeatDetected);
+   Serial.print("Initializing pulse oximeter..");
+
+   // Initialize the PulseOximeter instance
+   // Failures are generally due to an improper I2C wiring, missing power supply
+   // or wrong target chip
+   if (!pox.begin()) {
+       Serial.println("FAILED");
+       for(;;);
+   } else {
+       Serial.println("SUCCESS");
+   }
+    pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+
+   // Register a callback for the beat detection
+   pox.setOnBeatDetectedCallback(onBeatDetected);
+
+   Serial.begin(9600);
+   pinMode(pin, INPUT_PULLUP);
+
+   int scroll = 0;
 }
  
-void loop()
-{
-    // Make sure to call update as fast as possible
-    pox.update();
-    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-        tft.fillScreen(ST77XX_BLACK);
-        int heartRate = int(pox.getHeartRate());
-        String heartRateChar = String(heartRate);
-        String heartRateString = "Heart rate: " + heartRateChar;
-        testdrawtext(heartRateString, ST77XX_WHITE, 0);
-        Serial.print("Heart rate:");
-        Serial.print(pox.getHeartRate());
-        int SpO2 = int(pox.getSpO2());
-        String SpO2Char = String(SpO2);
-        String SpO2String = "Oxygen level: " + SpO2Char;
-        testdrawtext(SpO2String, ST77XX_WHITE, 2);
-        Serial.print("bpm / SpO2:");
-        Serial.print(pox.getSpO2());
-        Serial.println("%");
+void loop() {
+  Serial.println(digitalRead(4));
+  delay(20);
+  
+  duration = pulseIn(pin, LOW);
+  Serial.println(duration); //in microseconds
  
-        tsLastReport = millis();
+    
+    if(scroll==0 && digitalRead(4)==0) {
+     
+     tft.fillScreen(ST77XX_BLACK);
+     //Function for time goes here
+     scroll = 1;
+     
+    } else if(scroll==1 && digitalRead(4)==0) {
+     
+     tft.fillScreen(ST77XX_BLACK);
+     //Function for pedometer goes here
+     scroll = 2;
+     
+    } else if(scroll==2 && digitalRead(4)==0) {
+     
+     //Fill screen is already included in function
+     oximeterreadings();
+     scroll = 0;
+      
+    } else if(duration > 2000000) {
+     
+    tft.fillScreen(ST77XX_BLACK);
+    //Function for Bluetooth goes here
+     
     }
 }
 
@@ -142,6 +160,31 @@ void testlines(uint16_t color) {
     delay(0);
   }
 }
+
+
+    void oximeterreadings() {
+     
+    // Make sure to call update as fast as possible
+    pox.update();
+    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+        tft.fillScreen(ST77XX_BLACK);
+        int heartRate = int(pox.getHeartRate());
+        String heartRateChar = String(heartRate);
+        String heartRateString = "Heart rate: " + heartRateChar;
+        testdrawtext(heartRateString, ST77XX_WHITE, 0);
+        Serial.print("Heart rate:");
+        Serial.print(pox.getHeartRate());
+        int SpO2 = int(pox.getSpO2());
+        String SpO2Char = String(SpO2);
+        String SpO2String = "Oxygen level: " + SpO2Char;
+        testdrawtext(SpO2String, ST77XX_WHITE, 2);
+        Serial.print("bpm / SpO2:");
+        Serial.print(pox.getSpO2());
+        Serial.println("%");
+ 
+        tsLastReport = millis();
+    }
+  }
 
 void testdrawtext(String text, uint16_t color, int line) {
   tft.setCursor(0, line*10);
