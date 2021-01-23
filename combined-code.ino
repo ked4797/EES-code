@@ -116,6 +116,7 @@ void loop()
      
     tft.fillScreen(ST77XX_BLACK);
     //Function for Bluetooth goes here
+     
     }
 }
 
