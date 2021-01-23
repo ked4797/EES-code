@@ -28,6 +28,7 @@
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 float p = 3.1415926;
+int scroll = 0;
  
 PulseOximeter pox;
 uint32_t tsLastReport = 0;
@@ -81,8 +82,6 @@ void setup()
 
    Serial.begin(9600);
    pinMode(pin, INPUT_PULLUP);
-
-   int scroll = 0;
 }
  
 void loop() {
