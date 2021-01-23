@@ -85,9 +85,7 @@ void setup()
    int scroll = 0;
 }
  
-void loop()
- 
-{
+void loop() {
   Serial.println(digitalRead(4));
   delay(20);
   
@@ -120,7 +118,6 @@ void loop()
      
     }
 }
-
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
@@ -164,6 +161,7 @@ void testlines(uint16_t color) {
   }
 }
 
+
     void oximeterreadings() {
      
     // Make sure to call update as fast as possible
@@ -188,11 +186,11 @@ void testlines(uint16_t color) {
     }
   }
 
-void testdrawtext(String text, uint16_t color, int lines) {
-  tft.setCursor(0, 10*lines);
+void testdrawtext(String text, uint16_t color, int line) {
+  tft.setCursor(0, line*10);
   tft.setTextColor(color);
   tft.setTextWrap(true);
-  tft.print(text);
+  tft.println(text);
 }
 
 void testfastlines(uint16_t color1, uint16_t color2) {
