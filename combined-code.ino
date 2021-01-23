@@ -80,11 +80,29 @@ void setup()
 }
  
 void loop()
+ 
 {
-    Serial.println(digitalRead(4));
-    delay(20);
-    if(digitalRead(4)==0) {
-    oximeterreadings();
+  Serial.println(digitalRead(4));
+  delay(20);
+ 
+    int scroll = 0;
+    
+    if(scroll==0 && digitalRead(4)==0) {
+     tft.fillScreen(ST77XX_BLACK);
+     //Function for time goes here
+     scroll = 1;
+    }
+ 
+    if(scroll==1 && digitalRead(4)==0) {
+     //Fill screen is already included in function
+     oximeterreadings();
+     scroll = 2;
+    }
+ 
+    if(scroll==2 && digitalRead(4)==0) {
+     tft.fillScreen(ST77XX_BLACK);
+     //Function for pedometer goes here
+     scroll = 0
     }
 }
 
