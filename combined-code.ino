@@ -63,26 +63,26 @@ void setup()
   Serial.println("done");
   delay(1000);
   
-    Serial.print("Initializing pulse oximeter..");
- 
-    // Initialize the PulseOximeter instance
-    // Failures are generally due to an improper I2C wiring, missing power supply
-    // or wrong target chip
-    if (!pox.begin()) {
-        Serial.println("FAILED");
-        for(;;);
-    } else {
-        Serial.println("SUCCESS");
-    }
-     pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
- 
-    // Register a callback for the beat detection
-    pox.setOnBeatDetectedCallback(onBeatDetected);
- 
-    Serial.begin(9600);
-    pinMode(pin, INPUT_PULLUP);
-    
-    int scroll = 0;
+   Serial.print("Initializing pulse oximeter..");
+
+   // Initialize the PulseOximeter instance
+   // Failures are generally due to an improper I2C wiring, missing power supply
+   // or wrong target chip
+   if (!pox.begin()) {
+       Serial.println("FAILED");
+       for(;;);
+   } else {
+       Serial.println("SUCCESS");
+   }
+    pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+
+   // Register a callback for the beat detection
+   pox.setOnBeatDetectedCallback(onBeatDetected);
+
+   Serial.begin(9600);
+   pinMode(pin, INPUT_PULLUP);
+
+   int scroll = 0;
 }
  
 void loop()
@@ -111,7 +111,7 @@ void loop()
      
      //Fill screen is already included in function
      oximeterreadings();
-     scroll = 0
+     scroll = 0;
       
     } else if(duration > 2000000) {
      
@@ -184,7 +184,7 @@ void testlines(uint16_t color) {
         Serial.print(pox.getSpO2());
         Serial.println("%");
  
-        tsLastReport = millis()
+        tsLastReport = millis();
     }
   }
 
