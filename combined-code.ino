@@ -36,6 +36,9 @@ void onBeatDetected()
 {
     Serial.println("Beat!");
 }
+
+int pin = 4; //For button
+unsigned long duration;
  
 void setup()
 {
@@ -75,8 +78,9 @@ void setup()
  
     // Register a callback for the beat detection
     pox.setOnBeatDetectedCallback(onBeatDetected);
-    
-    pinMode(4, INPUT_PULLUP);
+ 
+    Serial.begin(9600);
+    pinMode(pin, INPUT_PULLUP);
 }
  
 void loop()
@@ -84,6 +88,9 @@ void loop()
 {
   Serial.println(digitalRead(4));
   delay(20);
+  
+  duration = pulseIn(pin, LOW);
+  Serial.println(duration); //in microseconds
  
     int scroll = 0;
     
@@ -94,15 +101,20 @@ void loop()
     }
  
     if(scroll==1 && digitalRead(4)==0) {
-     //Fill screen is already included in function
-     oximeterreadings();
+     tft.fillScreen(ST77XX_BLACK);
+     //Function for pedometer goes here
      scroll = 2;
     }
  
     if(scroll==2 && digitalRead(4)==0) {
-     tft.fillScreen(ST77XX_BLACK);
-     //Function for pedometer goes here
+     //Fill screen is already included in function
+     oximeterreadings();
      scroll = 0
+    }
+    
+    if(duration > 2000000) {
+    tft.fillScreen(ST77XX_BLACK);
+    //Function for Bluetooth goes here
     }
 }
 
