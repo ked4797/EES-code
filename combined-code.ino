@@ -4,6 +4,16 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
+#include <Adafruit_LSM6DSOX.h>
+
+Adafruit_LSM6DSOX lsm;
+
+// For SPI mode, we need a CS pin
+#define LSM_CS 12
+// For software-SPI mode we need SCK/MOSI/MISO pins
+#define LSM_SCK 13
+#define LSM_MISO 12
+#define LSM_MOSI 11
  
 #define REPORTING_PERIOD_MS     1000
 
@@ -82,6 +92,30 @@ void setup()
 
    Serial.begin(9600);
    pinMode(pin, INPUT_PULLUP);
+ 
+ if (!lsm.begin_I2C()) {
+    // if (!lsm.begin_SPI(LSM_CS)) {
+    // if (!lsm.begin_SPI(LSM_CS, LSM_SCK, LSM_MISO, LSM_MOSI)) {
+    Serial.println("Failed to find LSM6DS33 chip");
+    while (1) {
+      delay(10);
+    }
+  }
+
+ // gyro-accelerometer setup code
+  Serial.println("LSM6DS33 Found!");
+
+  // Set to 2G range and 26 Hz update rate
+  lsm.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
+  lsm.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
+  lsm.setAccelDataRate(LSM6DS_RATE_26_HZ);
+  lsm.setGyroDataRate(LSM6DS_RATE_26_HZ);
+
+  // step detect output on INT1
+  lsm.configInt1(false, false, false, true);
+
+  // turn it on!
+  lsm.enablePedometer(true);
 }
  
 void loop() {
@@ -101,7 +135,7 @@ void loop() {
     } else if(scroll==1 && digitalRead(4)==0) {
      
      tft.fillScreen(ST77XX_BLACK);
-     //Function for pedometer goes here
+     stepcount();
      scroll = 2;
      
     } else if(scroll==2 && digitalRead(4)==0) {
@@ -161,29 +195,41 @@ void testlines(uint16_t color) {
 }
 
 
-    void oximeterreadings() {
-     
-    // Make sure to call update as fast as possible
-    pox.update();
-    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-        tft.fillScreen(ST77XX_BLACK);
-        int heartRate = int(pox.getHeartRate());
-        String heartRateChar = String(heartRate);
-        String heartRateString = "Heart rate: " + heartRateChar;
-        testdrawtext(heartRateString, ST77XX_WHITE, 0);
-        Serial.print("Heart rate:");
-        Serial.print(pox.getHeartRate());
-        int SpO2 = int(pox.getSpO2());
-        String SpO2Char = String(SpO2);
-        String SpO2String = "Oxygen level: " + SpO2Char;
-        testdrawtext(SpO2String, ST77XX_WHITE, 2);
-        Serial.print("bpm / SpO2:");
-        Serial.print(pox.getSpO2());
-        Serial.println("%");
+void oximeterreadings() {
  
-        tsLastReport = millis();
-    }
+// Make sure to call update as fast as possible
+pox.update();
+  if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+      tft.fillScreen(ST77XX_BLACK);
+      int heartRate = int(pox.getHeartRate());
+      String heartRateChar = String(heartRate);
+      String heartRateString = "Heart rate: " + heartRateChar;
+      testdrawtext(heartRateString, ST77XX_WHITE, 0);
+      Serial.print("Heart rate:");
+      Serial.print(pox.getHeartRate());
+      int SpO2 = int(pox.getSpO2());
+      String SpO2Char = String(SpO2);
+      String SpO2String = "Oxygen level: " + SpO2Char;
+      testdrawtext(SpO2String, ST77XX_WHITE, 2);
+      Serial.print("bpm / SpO2:");
+      Serial.print(pox.getSpO2());
+      Serial.println("%");
+  
+      tsLastReport = millis();
   }
+}
+
+// function for stepcount
+void stepcount() {
+ int stepcount = lsm.readPedometer();
+ String stepcountString = String(stepcount);
+ String steps = "Steps taken: " + stepcountString;
+ testdrawtext(steps, ST77XX_WHITE, 0);
+}
+
+void bluetooth() {
+  
+}
 
 void testdrawtext(String text, uint16_t color, int line) {
   tft.setCursor(0, line*10);
