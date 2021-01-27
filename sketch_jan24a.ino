@@ -27,7 +27,7 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 float p = 3.1415926;
 
-DateTime now; //object called now 
+ //object called now 
 
 
 void setup() {
@@ -42,7 +42,9 @@ void testdrawtext(String text, int line) { // , uint16_t color
   tft.println(text);
 }
 void loop() {
+  DateTime now;
   now = rtc.now();
+  
   int h = now.hour(); 
  int m = now.minute(); 
  int s = now.second(); 
