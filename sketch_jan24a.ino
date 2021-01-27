@@ -29,10 +29,11 @@ float p = 3.1415926;
 
  //object called now 
 
-
 void setup() {
-   tft.begin(240, 240);   
-    
+  rtc.begin();
+  tft.begin(240, 240);   
+  Serial.begin(9600);
+
 }
 
 void testdrawtext(String text, int line) { // , uint16_t color
@@ -52,21 +53,21 @@ void loop() {
 
  tft.setCursor(5,10)
  if (h>10){
-   tft.print("0")
+   tft.print("0");
  }
  tft.print(h)
- tft.testdrawtext(":", 7)
+ tft.testdrawtext(":", 7);
  
-tft.setCursor(8,10)  
+tft.setCursor(8,10) ; 
   if (m>10){
-    tft.print("0")
+    tft.print("0");
  }
- tft.testdrawtext(":", 10)
- tft.print(m)
+ tft.testdrawtext(":", 10);
+ tft.print(m);
  
-tft.setCursor(11,10)
+tft.setCursor(11,10);
  if (s>10){
-    tft.print("0")
+    tft.print("0");
  }
  tft.testdrawtext(s, 5);
 }
