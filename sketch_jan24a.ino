@@ -36,7 +36,7 @@ void setup() {
 }
 
 void testdrawtext(String text, int line) { // , uint16_t color
-  tft.setCursor(0,10);
+  tft.setCursor(line ,10);
   //tft.setTextColor(color);
   tft.setTextWrap(true);
   tft.println(text);
@@ -66,5 +66,5 @@ tft.setCursor(11,10)
  if (s>10){
     tft.print("0")
  }
- tft.testdrawtext(s,ST77XX_WHITE , 5);
+ tft.testdrawtext(s, 5);
 }
