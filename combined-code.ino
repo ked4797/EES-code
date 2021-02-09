@@ -120,16 +120,16 @@ void setup()
   // turn it on!
   lsm.enablePedometer(true);
  
- while (timeout < 21) {
+}
+ 
+void loop() {
+ 
+  while (timeout < 21) {
   
   timeout = timeout + 1;
   delay(1000);
   
  }
- 
-}
- 
-void loop() {
  
   Serial.println(digitalRead(4));
   delay(20);
