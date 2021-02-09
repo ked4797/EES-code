@@ -41,6 +41,7 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 float p = 3.1415926;
 int scroll = 0;
+int timeout = 0;
  
 PulseOximeter pox;
 uint32_t tsLastReport = 0;
@@ -118,6 +119,14 @@ void setup()
 
   // turn it on!
   lsm.enablePedometer(true);
+ 
+ while (timeout < 21) {
+  
+  timeout = timeout + 1;
+  delay(1000);
+  
+ }
+ 
 }
  
 void loop() {
@@ -127,9 +136,9 @@ void loop() {
   
   duration = pulseIn(pin, LOW);
   Serial.println(duration); //in microseconds
+  
  
-  durationoff = pulseIn(pin, HIGH);
-  Serial.println(durationoff); //in microseconds
+ while (digitalRead(4)==1 && timeout < 20) {
  
     
     if(scroll==0 && digitalRead(4)==0) {
@@ -137,32 +146,35 @@ void loop() {
      tft.fillScreen(ST77XX_BLACK);
      //Function for time goes here
      scroll = 1;
+     timeout = 0;
      
     } else if(scroll==1 && digitalRead(4)==0) {
      
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
+     timeout = 0;
      
     } else if(scroll==2 && digitalRead(4)==0) {
      
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0;
+     timeout = 0;
       
     } else if(duration > 2000000) {
      
-    tft.fillScreen(ST77XX_BLACK);
-    //Function for Bluetooth goes here
-     
-    }
+     tft.fillScreen(ST77XX_BLACK);
+     //Function for Bluetooth goes here
+     timeout = 0;
     
-   if(durationoff > 20000000) {
-   
+    }
+ }
+    
    digitalWrite(backlight_pin,LOW);
+   timeout = 0;
    delay(5000);
-   
-   }
+
 }
 
 void testlines(uint16_t color) {
