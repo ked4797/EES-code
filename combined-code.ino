@@ -137,9 +137,6 @@ void loop() {
   duration = pulseIn(pin, LOW);
   Serial.println(duration); //in microseconds
   
- 
- while (digitalRead(4)==1 && timeout < 20) {
- 
     
     if(scroll==0 && digitalRead(4)==0) {
      
@@ -169,11 +166,14 @@ void loop() {
      timeout = 0;
     
     }
- }
+ 
+   if(timeout >= 20) {
     
    digitalWrite(backlight_pin,LOW);
    timeout = 0;
    delay(5000);
+  
+  }
 
 }
 
