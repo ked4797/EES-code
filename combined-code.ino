@@ -35,6 +35,8 @@ Adafruit_LSM6DSOX lsm;
   #define TFT_DC         7
 #endif
 
+#define backlight_pin 12
+
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 float p = 3.1415926;
@@ -119,11 +121,15 @@ void setup()
 }
  
 void loop() {
+ 
   Serial.println(digitalRead(4));
   delay(20);
   
   duration = pulseIn(pin, LOW);
   Serial.println(duration); //in microseconds
+ 
+  durationoff = pulseIn(pin, HIGH);
+  Serial.println(durationoff); //in microseconds
  
     
     if(scroll==0 && digitalRead(4)==0) {
@@ -150,6 +156,13 @@ void loop() {
     //Function for Bluetooth goes here
      
     }
+    
+   if(durationoff > 20000000) {
+   
+   digitalWrite(backlight_pin,LOW);
+   delay(5000);
+   
+   }
 }
 
 void testlines(uint16_t color) {
