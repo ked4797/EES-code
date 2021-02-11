@@ -176,15 +176,25 @@ void setup()
   // turn it on!
   lsm.enablePedometer(true);
  
+  pinMode(backlight_pin, OUTPUT);
+ 
 }
  
 void loop() {
  
-  while (timeout < 21) {
+   while (timeout < 21 && digitalRead(pin) != 0) {
   
   timeout = timeout + 1;
   delay(1000);
   
+ }
+ 
+  if(timeout >= 20) {
+    
+   digitalWrite(backlight_pin,LOW);
+   timeout = 0;
+   delay(5000);
+   
  }
  
   Serial.println(digitalRead(4));
@@ -196,6 +206,7 @@ void loop() {
     
     if(scroll==0 && digitalRead(4)==0) {
      
+     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      //Function for time goes here
      scroll = 1;
@@ -203,6 +214,7 @@ void loop() {
      
     } else if(scroll==1 && digitalRead(4)==0) {
      
+     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
@@ -210,6 +222,7 @@ void loop() {
      
     } else if(scroll==2 && digitalRead(4)==0) {
      
+     digitalWrite(backlight_pin,HIGH);
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0;
@@ -217,6 +230,7 @@ void loop() {
       
     } else if(duration > 2000000) {
      
+     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      bluetooth();
      delay(5);
@@ -231,7 +245,6 @@ void loop() {
    delay(5000);
   
   }
-
 }
 
 void testlines(uint16_t color) {
@@ -279,8 +292,8 @@ void testlines(uint16_t color) {
 
 void oximeterreadings() {
  
-// Make sure to call update as fast as possible
-pox.update();
+  // Make sure to call update as fast as possible
+  pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       tft.fillScreen(ST77XX_BLACK);
       int heartRate = int(pox.getHeartRate());
@@ -303,23 +316,27 @@ pox.update();
 
 // function for stepcount
 void stepcount() {
+ 
  int stepcount = lsm.readPedometer();
  String stepcountString = String(stepcount);
  String steps = "Steps taken: " + stepcountString;
  testdrawtext(steps, ST77XX_WHITE, 0);
+ 
 }
 
 // function for stepcount for bluetooth
-String bluetoothstepcount() {
+ String bluetoothstepcount() {
+ 
  int stepcount = lsm.readPedometer();
  String stepcountString = String(stepcount);
  return stepcountString;
+ 
 }
 
-String bluetoothheart() {
+  String bluetoothheart() {
  
-// Make sure to call update as fast as possible
-pox.update();
+  // Make sure to call update as fast as possible
+  pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       int heartRate = int(pox.getHeartRate());
       String heartRateString = String(heartRate);
@@ -328,10 +345,10 @@ pox.update();
   }
 }
 
-String bluetoothoxygen() {
+  String bluetoothoxygen() {
  
-// Make sure to call update as fast as possible
-pox.update();
+  // Make sure to call update as fast as possible
+  pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       int SpO2 = int(pox.getSpO2());
       String SpO2String = String(SpO2);
@@ -339,6 +356,7 @@ pox.update();
       return SpO2String;
   }
 }
+
 void bluetooth() {
   
  // Forward data from HW Serial to BLEUART
