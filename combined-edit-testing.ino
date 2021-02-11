@@ -148,6 +148,7 @@ void loop() {
     
     if(scroll==0 && digitalRead(4)==0) {
      
+     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      //Function for time goes here
      scroll = 1;
@@ -155,6 +156,7 @@ void loop() {
      
     } else if(scroll==1 && digitalRead(4)==0) {
      
+     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
@@ -162,6 +164,7 @@ void loop() {
      
     } else if(scroll==2 && digitalRead(4)==0) {
      
+     digitalWrite(backlight_pin,HIGH);
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0;
@@ -169,6 +172,7 @@ void loop() {
       
     } else if(duration > 2000000) {
      
+     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      //Function for Bluetooth goes here
      timeout = 0;
