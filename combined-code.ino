@@ -385,6 +385,7 @@ void bluetooth() {
 void testdrawtext(String text, uint16_t color, int line) {
   tft.setCursor(0, line*10);
   tft.setTextColor(color);
+  tft.setTextSize(10);
   tft.setTextWrap(true);
   tft.println(text);
 }
