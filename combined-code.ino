@@ -305,7 +305,7 @@ void oximeterreadings() {
       int SpO2 = int(pox.getSpO2());
       String SpO2Char = String(SpO2);
       String SpO2String = "Oxygen level: " + SpO2Char;
-      testdrawtext(SpO2String, ST77XX_WHITE, 2);
+      testdrawtext(SpO2String, ST77XX_WHITE, 5);
       Serial.print("bpm / SpO2:");
       Serial.print(pox.getSpO2());
       Serial.println("%");
@@ -385,7 +385,7 @@ void bluetooth() {
 void testdrawtext(String text, uint16_t color, int line) {
   tft.setCursor(0, line*10);
   tft.setTextColor(color);
-  tft.setTextSize(3);
+  tft.setTextSize(5);
   tft.setTextWrap(true);
   tft.println(text);
 }
