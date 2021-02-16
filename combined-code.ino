@@ -5,8 +5,16 @@
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 #include <Adafruit_LSM6DSOX.h>
+#include <bluefruit.h>
+#include <Adafruit_LittleFS.h>
+#include <InternalFileSystem.h>
 
 Adafruit_LSM6DSOX lsm;
+
+BLEDfu  bledfu;  // OTA DFU service
+BLEDis  bledis;  // device information
+BLEUart bleuart; // uart over ble
+BLEBas  blebas;  // battery
 
 // For SPI mode, we need a CS pin
 #define LSM_CS 12
