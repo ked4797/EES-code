@@ -307,13 +307,13 @@ void oximeterreadings() {
       int heartRate = int(pox.getHeartRate());
       String heartRateChar = String(heartRate);
       String heartRateString = "Heart rate: " + heartRateChar;
-      testdrawtext(heartRateString, ST77XX_WHITE, 0);
+      testdrawtext(heartRateString, ST77XX_WHITE, 5);
       Serial.print("Heart rate:");
       Serial.print(pox.getHeartRate());
       int SpO2 = int(pox.getSpO2());
       String SpO2Char = String(SpO2);
       String SpO2String = "Oxygen level:" + SpO2Char;
-      testdrawtext(SpO2String, ST77XX_WHITE, 6);
+      testdrawtext(SpO2String, ST77XX_WHITE, 10);
       Serial.print("bpm / SpO2:");
       Serial.print(pox.getSpO2());
       Serial.println("%");
@@ -328,7 +328,7 @@ void stepcount() {
  int stepcount = lsm.readPedometer();
  String stepcountString = String(stepcount);
  String steps = "Steps taken: " + stepcountString;
- testdrawtext(steps, ST77XX_WHITE, 0);
+ testdrawtext(steps, ST77XX_WHITE, 6);
  
 }
 
