@@ -304,7 +304,7 @@ void oximeterreadings() {
       Serial.print(pox.getHeartRate());
       int SpO2 = int(pox.getSpO2());
       String SpO2Char = String(SpO2);
-      String SpO2String = "Oxygen level: " + SpO2Char;
+      String SpO2String = "Oxygen level:" + SpO2Char;
       testdrawtext(SpO2String, ST77XX_WHITE, 6);
       Serial.print("bpm / SpO2:");
       Serial.print(pox.getSpO2());
