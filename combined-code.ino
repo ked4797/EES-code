@@ -66,13 +66,6 @@ int pin = 4; //For button
 void setup()
 {
  
-      Serial.begin(115200);
-
-#if CFG_DEBUG
-  // Blocking wait for connection when debug mode is enabled via IDE
-  while ( !Serial ) yield();
-#endif
-  
 
   // basically all of the display code only runs through once and is therefore in setup
   
