@@ -231,6 +231,8 @@ void loop() {
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      //Function for time goes here
+     String test = "Time screen test";
+     testdrawtext(test, ST77XX_WHITE, 10);
      scroll = 1;
      timeout = 0;
      
