@@ -50,6 +50,7 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 float p = 3.1415926;
 int scroll = 0;
 int timeout = 0;
+int buttonhold = 0;
 String data;
  
 PulseOximeter pox;
@@ -197,6 +198,19 @@ void loop() {
   
  }
  
+   while (digitalRead(4)==0) {
+    
+    buttonhold = buttonhold + 1;
+    delay(1000);
+    
+ }
+ 
+  if(buttonhold >=3) {
+   
+   buttonhold = 0;
+   
+ }
+ 
   if(timeout >= 20) {
     
    digitalWrite(backlight_pin,LOW);
@@ -236,7 +250,7 @@ void loop() {
      scroll = 0;
      timeout = 0;
       
-    } else if(duration > 2000000) {
+    } else if(buttonhold==2) {
      
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
@@ -382,7 +396,7 @@ void bluetooth() {
   while ( bleuart.available() )
   {
     pox.update();
-    data = "Steps taken: " + bluetoothstepcount()\n + "Heart rate: " + bluetoothheart()\n + "Oxygen level: " + bluetoothoxygen()\n;
+    data = "Steps taken: " + bluetoothstepcount() "\n" + "Heart rate: " + bluetoothheart() "\n" + "Oxygen level: " + bluetoothoxygen();
     bleuart.println(data);
   }
     
