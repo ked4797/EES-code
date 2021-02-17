@@ -62,7 +62,6 @@ void onBeatDetected()
 }
 
 int pin = 4; //For button
-unsigned long duration;
  
 void setup()
 {
@@ -74,57 +73,6 @@ void setup()
   while ( !Serial ) yield();
 #endif
   
-  Serial.println("Bluefruit52 BLEUART Example");
-  Serial.println("---------------------------\n");
-
-  // Setup the BLE LED to be enabled on CONNECT
-  // Note: This is actually the default behaviour, but provided
-  // here in case you want to control this LED manually via PIN 19
-  Bluefruit.autoConnLed(true);
-
-  // Config the peripheral connection with maximum bandwidth 
-  // more SRAM required by SoftDevice
-  // Note: All config***() function must be called before begin()
-  Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
-
-  Bluefruit.begin();
-  Bluefruit.setTxPower(4);    // Check bluefruit.h for supported values
-  Bluefruit.setName("Bluefruit52");
-  //Bluefruit.setName(getMcuUniqueID()); // useful testing with multiple central connections
-  Bluefruit.Periph.setConnectCallback(connect_callback);
-  Bluefruit.Periph.setDisconnectCallback(disconnect_callback);
-
-  // To be consistent OTA DFU should be added first if it exists
-  bledfu.begin();
-
-  // Configure and Start Device Information Service
-  bledis.setManufacturer("Adafruit Industries");
-  bledis.setModel("Bluefruit Feather52");
-  bledis.begin();
-
-  // Configure and Start BLE Uart Service
-  bleuart.begin();
-
-  // Start BLE Battery Service
-  blebas.begin();
-  blebas.write(100);
-
-  // Set up and start advertising
-  startAdv();
-
-  Serial.println("Please use Adafruit's Bluefruit LE app to connect in UART mode");
-  Serial.println("Once connected, enter character(s) that you wish to send");
- 
- 
-    Serial.begin(9600);
-    tft.init(240, 240);
-
-    Serial.println(F("Initialized"));
- 
-    Serial.begin(9600);
-    tft.init(240, 240);
-
-    Serial.println(F("Initialized"));
 
   // basically all of the display code only runs through once and is therefore in setup
   
@@ -376,6 +324,56 @@ void stepcount() {
 }
 
 void bluetooth() {
+ 
+  Serial.println("Bluefruit52 BLEUART Example");
+  Serial.println("---------------------------\n");
+
+  // Setup the BLE LED to be enabled on CONNECT
+  // Note: This is actually the default behaviour, but provided
+  // here in case you want to control this LED manually via PIN 19
+  Bluefruit.autoConnLed(true);
+
+  // Config the peripheral connection with maximum bandwidth 
+  // more SRAM required by SoftDevice
+  // Note: All config***() function must be called before begin()
+  Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
+
+  Bluefruit.begin();
+  Bluefruit.setTxPower(4);    // Check bluefruit.h for supported values
+  Bluefruit.setName("Bluefruit52");
+  //Bluefruit.setName(getMcuUniqueID()); // useful testing with multiple central connections
+  Bluefruit.Periph.setConnectCallback(connect_callback);
+  Bluefruit.Periph.setDisconnectCallback(disconnect_callback);
+
+  // To be consistent OTA DFU should be added first if it exists
+  bledfu.begin();
+
+  // Configure and Start Device Information Service
+  bledis.setManufacturer("Adafruit Industries");
+  bledis.setModel("Bluefruit Feather52");
+  bledis.begin();
+
+  // Configure and Start BLE Uart Service
+  bleuart.begin();
+
+  // Start BLE Battery Service
+  blebas.begin();
+  blebas.write(100);
+
+  // Set up and start advertising
+  startAdv();
+
+  Serial.println("Please use Adafruit's Bluefruit LE app to connect in UART mode");
+  Serial.println("Once connected, enter character(s) that you wish to send");
+ 
+
+    tft.init(240, 240);
+
+    Serial.println(F("Initialized"));
+ 
+    tft.init(240, 240);
+
+    Serial.println(F("Initialized"));
   
  // Forward data from HW Serial to BLEUART
   while (Serial.available())
