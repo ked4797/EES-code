@@ -62,6 +62,7 @@ void onBeatDetected()
 }
 
 int pin = 4; //For button
+unsigned long duration;
  
 void setup()
  
@@ -145,18 +146,6 @@ void loop() {
   
  }
  
-   while (digitalRead(4)==0) {
-    
-    buttonhold = buttonhold + 1;
-    delay(1000);
-    
- }
- 
-  if(buttonhold >=3) {
-   
-   buttonhold = 0;
-   
- }
  
   if(timeout >= 20) {
     
@@ -165,6 +154,12 @@ void loop() {
    delay(5000);
    
  }
+ 
+  Serial.println(digitalRead(4));
+  delay(20);
+
+  duration = pulseIn(pin, LOW);
+  Serial.println(duration); //in microseconds
   
     
     if(scroll==0 && digitalRead(4)==0) {
@@ -193,7 +188,7 @@ void loop() {
      scroll = 0;
      timeout = 0;
       
-    } else if(buttonhold==2) {
+    } else if(duration > 2000000) {
      
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
