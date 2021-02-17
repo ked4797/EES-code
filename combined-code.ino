@@ -382,7 +382,7 @@ void bluetooth() {
   while ( bleuart.available() )
   {
     pox.update();
-    data = bluetoothstepcount() + bluetoothheart() + bluetoothoxygen();
+    data = "Steps taken: " + bluetoothstepcount()\n + "Heart rate: " + bluetoothheart()\n + "Oxygen level: " + bluetoothoxygen()\n;
     bleuart.println(data);
   }
     
