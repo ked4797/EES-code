@@ -64,8 +64,14 @@ void onBeatDetected()
 int pin = 4; //For button
  
 void setup()
+ 
 {
  
+    Serial.begin(9600);
+ 
+    tft.init(240, 240);
+
+    Serial.println(F("Initialized"));
 
   // basically all of the display code only runs through once and is therefore in setup
   
@@ -360,14 +366,6 @@ void bluetooth() {
   Serial.println("Once connected, enter character(s) that you wish to send");
  
 
-    tft.init(240, 240);
-
-    Serial.println(F("Initialized"));
- 
-    tft.init(240, 240);
-
-    Serial.println(F("Initialized"));
-  
  // Forward data from HW Serial to BLEUART
   while (Serial.available())
   {
