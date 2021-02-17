@@ -218,12 +218,6 @@ void loop() {
    delay(5000);
    
  }
- 
-  Serial.println(digitalRead(4));
-  delay(20);
-  
-  duration = pulseIn(pin, LOW);
-  Serial.println(duration); //in microseconds
   
     
     if(scroll==0 && digitalRead(4)==0) {
