@@ -9,21 +9,25 @@
 #include <Adafruit_LittleFS.h>
 #include <InternalFileSystem.h>
 
+// oximeter setup
+#define REPORTING_PERIOD_MS     1000
+PulseOximeter pox;
+uint32_t tsLastReport = 0;
+
+// accelerometer setup
 Adafruit_LSM6DSOX lsm;
 
+// BLE setup
 BLEDfu  bledfu;  // OTA DFU service
 BLEDis  bledis;  // device information
 BLEUart bleuart; // uart over ble
 BLEBas  blebas;  // battery
 
-// For SPI mode, we need a CS pin
+// display variables
 #define LSM_CS 12
-// For software-SPI mode we need SCK/MOSI/MISO pins
 #define LSM_SCK 13
 #define LSM_MISO 12
 #define LSM_MOSI 11
- 
-#define REPORTING_PERIOD_MS     1000
 
 #if defined(ARDUINO_FEATHER_ESP32) // Feather Huzzah32
   #define TFT_CS         14
@@ -44,40 +48,24 @@ BLEBas  blebas;  // battery
 #endif
 
 #define backlight_pin 12
+#define button_pin 13
 
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+
 
 float p = 3.1415926;
 int scroll = 0;
 int timeout = 0;
-int buttonhold = 0;
 String data;
- 
-PulseOximeter pox;
-uint32_t tsLastReport = 0;
- 
-void onBeatDetected()
-{
-    Serial.println("Beat!");
-}
-
-int pin = 4; //For button
 unsigned long duration;
- 
+bool backlightOff = false;
+  
 void setup()
- 
 {
- 
-    Serial.begin(9600);
- 
-    tft.init(240, 240);
-
-    Serial.println(F("Initialized"));
-
-  // basically all of the display code only runs through once and is therefore in setup
+  Serial.begin(9600);
+  tft.init(240, 240);
   
   uint16_t time = millis();
-  tft.fillScreen(ST77XX_BLACK);
   time = millis() - time;
 
   Serial.println(time, DEC);
@@ -86,39 +74,32 @@ void setup()
   // large block of text
   tft.fillScreen(ST77XX_BLACK);
   delay(1000);
-
   Serial.println("done");
   delay(1000);
   
-   Serial.print("Initializing pulse oximeter..");
+  Serial.print("Initializing pulse oximeter..");
+  
+  // Initialize the PulseOximeter instance
+  // Failures are generally due to an improper I2C wiring, missing power supply
+  // or wrong target chip
+  if (!pox.begin()) {
+     Serial.println("FAILED");
+     for(;;);
+  } else {
+     Serial.println("SUCCESS");
+  }
+  pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+  
+  // Register a callback for the beat detection
+  pox.setOnBeatDetectedCallback(onBeatDetected);
 
-   // Initialize the PulseOximeter instance
-   // Failures are generally due to an improper I2C wiring, missing power supply
-   // or wrong target chip
-   if (!pox.begin()) {
-       Serial.println("FAILED");
-       for(;;);
-   } else {
-       Serial.println("SUCCESS");
-   }
-    pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
-
-   // Register a callback for the beat detection
-   pox.setOnBeatDetectedCallback(onBeatDetected);
-
-   Serial.begin(9600);
-   pinMode(pin, INPUT_PULLUP);
- 
  if (!lsm.begin_I2C()) {
-    // if (!lsm.begin_SPI(LSM_CS)) {
-    // if (!lsm.begin_SPI(LSM_CS, LSM_SCK, LSM_MISO, LSM_MOSI)) {
     Serial.println("Failed to find LSM6DS33 chip");
     while (1) {
       delay(10);
     }
   }
-
- // gyro-accelerometer setup code
+  
   Serial.println("LSM6DS33 Found!");
 
   // Set to 2G range and 26 Hz update rate
@@ -134,121 +115,65 @@ void setup()
   lsm.enablePedometer(true);
  
   pinMode(backlight_pin, OUTPUT);
- 
+  pinMode(button_pin, INPUT_PULLUP);
 }
+
+
+
+
+
  
 void loop() {
  
-   while (timeout < 21 && digitalRead(pin) != 0) {
+  if (timeout <= 20000 && !backlightOff && digitalRead(button_pin) != 0) {
+    timeout++;
+    Serial.println("+1");
+    delay(1);
+  }
   
-  timeout = timeout + 1;
-  delay(1000);
-  
- }
- 
- 
-  if(timeout >= 20) {
-    
-   digitalWrite(backlight_pin,LOW);
-   timeout = 0;
-   delay(5000);
-   
- }
- 
-  Serial.println(digitalRead(4));
-  delay(20);
+  Serial.println(digitalRead(button_pin));
 
-  duration = pulseIn(pin, LOW);
-  Serial.println(duration); //in microseconds
-  
-    
-    if(scroll==0 && digitalRead(4)==0) {
-     
+  if (digitalRead(button_pin) == 0){
+    if (scroll == 0){
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      //Function for time goes here
-     String test = "Time screen test";
-     testdrawtext(test, ST77XX_WHITE, 10);
+     Serial.println("Time displayed");
      scroll = 1;
-     timeout = 0;
-     
-    } else if(scroll==1 && digitalRead(4)==0) {
-     
+    }
+    else if (scroll == 1){
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
-     timeout = 0;
-     
-    } else if(scroll==2 && digitalRead(4)==0) {
-     
+    }
+    else if (scroll == 2)
+    {
      digitalWrite(backlight_pin,HIGH);
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0;
-     timeout = 0;
-      
-    } else if(duration > 2000000) {
-     
-     digitalWrite(backlight_pin,HIGH);
-     tft.fillScreen(ST77XX_BLACK);
-     bluetooth();
-     delay(5);
-     timeout = 0;
-    
     }
- 
-   if(timeout >= 20) {
-    
-   digitalWrite(backlight_pin,LOW);
+    timeout = 0;
+    delay(500);
+    backlightOff = false;
+  }
+   
+  if(duration >= 20000) {
+   digitalWrite(backlight_pin,HIGH);
+   tft.fillScreen(ST77XX_BLACK);
+   bluetooth();
+   delay(5);
    timeout = 0;
-   delay(5000);
-  
-  }
+  } 
+
+  if(timeout >= 20000) {
+   digitalWrite(backlight_pin, LOW);
+   Serial.println("Backlight off");
+   timeout = 0;
+   backlightOff = true;
+ }
 }
-
-void testlines(uint16_t color) {
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(0, 0, x, tft.height()-1, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(0, 0, tft.width()-1, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(tft.width()-1, 0, x, tft.height()-1, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(tft.width()-1, 0, 0, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(0, tft.height()-1, x, 0, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(0, tft.height()-1, tft.width()-1, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(tft.width()-1, tft.height()-1, x, 0, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(tft.width()-1, tft.height()-1, 0, y, color);
-    delay(0);
-  }
-}
-
 
 void oximeterreadings() {
  
@@ -257,44 +182,35 @@ void oximeterreadings() {
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       tft.fillScreen(ST77XX_BLACK);
       int heartRate = int(pox.getHeartRate());
-      String heartRateChar = String(heartRate);
-      String heartRateString = "Heart rate: " + heartRateChar;
+      String heartRateString = "Heart rate: " + String(heartRate);
       testdrawtext(heartRateString, ST77XX_WHITE, 6);
       Serial.print("Heart rate:");
       Serial.print(pox.getHeartRate());
       int SpO2 = int(pox.getSpO2());
-      String SpO2Char = String(SpO2);
-      String SpO2String = "Oxygen level:" + SpO2Char;
+      String SpO2String = "Oxygen level:" + String(SpO2);
       testdrawtext(SpO2String, ST77XX_WHITE, 11);
       Serial.print("bpm / SpO2:");
       Serial.print(pox.getSpO2());
       Serial.println("%");
-  
       tsLastReport = millis();
   }
 }
 
 // function for stepcount
 void stepcount() {
- 
  int stepcount = lsm.readPedometer();
- String stepcountString = String(stepcount);
- String steps = "Steps taken: " + stepcountString;
- testdrawtext(steps, ST77XX_WHITE, 10);
- 
+ String stepcountString = "Steps taken: "+ String(stepcount);
+ testdrawtext(stepcountString, ST77XX_WHITE, 10);
 }
 
 // function for stepcount for bluetooth
- String bluetoothstepcount() {
- 
+String bluetoothstepcount() {
  int stepcount = lsm.readPedometer();
  String stepcountString = String(stepcount);
  return stepcountString;
- 
-}
+ }
 
-  String bluetoothheart() {
- 
+String bluetoothheart() {
   // Make sure to call update as fast as possible
   pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
@@ -305,8 +221,7 @@ void stepcount() {
   }
 }
 
-  String bluetoothoxygen() {
- 
+String bluetoothoxygen() { 
   // Make sure to call update as fast as possible
   pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
@@ -360,27 +275,13 @@ void bluetooth() {
   Serial.println("Please use Adafruit's Bluefruit LE app to connect in UART mode");
   Serial.println("Once connected, enter character(s) that you wish to send");
  
-
- // Forward data from HW Serial to BLEUART
-  while (Serial.available())
-  {
-    // Delay to wait for enough input, since we have a limited transmission buffer
-    delay(2);
-
-    uint8_t buf[64];
-    int count = Serial.readBytes(buf, sizeof(buf));
-    bleuart.write( buf, count );
-  }
- 
  // Forward from BLEUART to HW Serial
   while ( bleuart.available() )
   {
     pox.update();
-    data = "Steps taken: " + bluetoothstepcount() "\n" + "Heart rate: " + bluetoothheart() "\n" + "Oxygen level: " + bluetoothoxygen();
+    data = "Steps taken: " + bluetoothstepcount() + "\nHeart rate: " + bluetoothheart() + "\nOxygen level: " + bluetoothoxygen() + "\n";
     bleuart.println(data);
-  }
-    
-    
+  } 
 }
 
 
@@ -390,146 +291,6 @@ void testdrawtext(String text, uint16_t color, int line) {
   tft.setTextSize(3);
   tft.setTextWrap(true);
   tft.println(text);
-}
-
-void testfastlines(uint16_t color1, uint16_t color2) {
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t y=0; y < tft.height(); y+=5) {
-    tft.drawFastHLine(0, y, tft.width(), color1);
-  }
-  for (int16_t x=0; x < tft.width(); x+=5) {
-    tft.drawFastVLine(x, 0, tft.height(), color2);
-  }
-}
-
-void testdrawrects(uint16_t color) {
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color);
-  }
-}
-
-void testfillrects(uint16_t color1, uint16_t color2) {
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=tft.width()-1; x > 6; x-=6) {
-    tft.fillRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color1);
-    tft.drawRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color2);
-  }
-}
-
-void testfillcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=radius; x < tft.width(); x+=radius*2) {
-    for (int16_t y=radius; y < tft.height(); y+=radius*2) {
-      tft.fillCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testdrawcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=0; x < tft.width()+radius; x+=radius*2) {
-    for (int16_t y=0; y < tft.height()+radius; y+=radius*2) {
-      tft.drawCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testtriangles() {
-  tft.fillScreen(ST77XX_BLACK);
-  uint16_t color = 0xF800;
-  int t;
-  int w = tft.width()/2;
-  int x = tft.height()-1;
-  int y = 0;
-  int z = tft.width();
-  for(t = 0 ; t <= 15; t++) {
-    tft.drawTriangle(w, y, y, x, z, x, color);
-    x-=4;
-    y+=4;
-    z-=4;
-    color+=100;
-  }
-}
-
-void testroundrects() {
-  tft.fillScreen(ST77XX_BLACK);
-  uint16_t color = 100;
-  int i;
-  int t;
-  for(t = 0 ; t <= 4; t+=1) {
-    int x = 0;
-    int y = 0;
-    int w = tft.width()-2;
-    int h = tft.height()-2;
-    for(i = 0 ; i <= 16; i+=1) {
-      tft.drawRoundRect(x, y, w, h, 5, color);
-      x+=2;
-      y+=3;
-      w-=4;
-      h-=6;
-      color+=1100;
-    }
-    color+=100;
-  }
-}
-
-void tftPrintTest() {
-  tft.setTextWrap(false);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0, 30);
-  tft.setTextColor(ST77XX_RED);
-  tft.setTextSize(1);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_YELLOW);
-  tft.setTextSize(2);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_GREEN);
-  tft.setTextSize(3);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_BLUE);
-  tft.setTextSize(4);
-  tft.print(1234.567);
-  delay(1500);
-  tft.setCursor(0, 0);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(0);
-  tft.println("Hello World!");
-  tft.setTextSize(1);
-  tft.setTextColor(ST77XX_GREEN);
-  tft.print(p, 6);
-  tft.println(" Want pi?");
-  tft.println(" ");
-  tft.print(8675309, HEX); // print 8,675,309 out in HEX!
-  tft.println(" Print HEX!");
-  tft.println(" ");
-  tft.setTextColor(ST77XX_WHITE);
-  tft.println("Sketch has been");
-  tft.println("running for: ");
-  tft.setTextColor(ST77XX_MAGENTA);
-  tft.print(millis() / 1000);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.print(" seconds.");
-}
-
-void mediabuttons() {
-  // play
-  tft.fillScreen(ST77XX_BLACK);
-  tft.fillRoundRect(25, 10, 78, 60, 8, ST77XX_WHITE);
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_RED);
-  delay(500);
-  // pause
-  tft.fillRoundRect(25, 90, 78, 60, 8, ST77XX_WHITE);
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_GREEN);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_GREEN);
-  delay(500);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_BLUE);
-  delay(50);
-  // pause color
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_RED);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_RED);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_GREEN);
 }
 
 void startAdv()
@@ -585,4 +346,9 @@ void disconnect_callback(uint16_t conn_handle, uint8_t reason)
 
   Serial.println();
   Serial.print("Disconnected, reason = 0x"); Serial.println(reason, HEX);
+}
+
+void onBeatDetected()
+{
+    Serial.println("Beat!");
 }
