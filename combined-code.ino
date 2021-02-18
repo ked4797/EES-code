@@ -131,6 +131,14 @@ void loop() {
     delay(1);
   }
   
+  
+  Serial.println(digitalRead(4));
+  delay(20);
+
+  duration = pulseIn(pin, LOW);
+  Serial.println(duration); 
+
+  
   Serial.println(digitalRead(button_pin));
 
   if (digitalRead(button_pin) == 0){
