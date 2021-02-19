@@ -39,15 +39,35 @@ void setup() {
 
 }
 
-void testdrawtext(boost::any text, uint16_t color, int line) {
-  tft.setCursor(0, line*10);
-  tft.setTextColor(color);
-  tft.setTextSize(3);
-  tft.setTextWrap(true);
-  tft.println(text);
-}
-void loop() {
 
-  
- tft.println(rtc.getCurrentDateTime(),ST77XX_WHITE,6 );
+void testdrawtext(String text, int line) { // , uint16_t color
+@@ -52,21 +53,21 @@ void loop() {
+
+ tft.setCursor(5,10)
+ if (h>10){
+   tft.print("0")
+   tft.print("0");
+ }
+ tft.print(h)
+ tft.testdrawtext(":", 7)
+ tft.testdrawtext(":", 7);
+
+tft.setCursor(8,10)  
+tft.setCursor(8,10) ; 
+  if (m>10){
+    tft.print("0")
+    tft.print("0");
+ }
+ tft.testdrawtext(":", 10)
+ tft.print(m)
+ tft.testdrawtext(":", 10);
+ tft.print(m);
+
+tft.setCursor(11,10)
+tft.setCursor(11,10);
+ if (s>10){
+    tft.print("0")
+    tft.print("0");
+ }
+ tft.testdrawtext(s, 5);
 }
