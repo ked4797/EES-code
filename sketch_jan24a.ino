@@ -2,6 +2,8 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
+#include <boost/any.hpp>
+
 
 #if defined(ARDUINO_FEATHER_ESP32) // Feather Huzzah32
   #define TFT_CS         14
@@ -22,6 +24,7 @@
 #endif
 #include <RV3028C7.h>
 
+using boost::any_cast;
 RV3028C7 rtc;
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
@@ -36,38 +39,15 @@ void setup() {
 
 }
 
-void testdrawtext(String text, int line) { // , uint16_t color
-  tft.setCursor(line ,10);
-  //tft.setTextColor(color);
+void testdrawtext(boost::any text, uint16_t color, int line) {
+  tft.setCursor(0, line*10);
+  tft.setTextColor(color);
+  tft.setTextSize(3);
   tft.setTextWrap(true);
   tft.println(text);
 }
 void loop() {
-  DateTime now;
-  now = rtc.now();
-  
-  int h = now.hour(); 
- int m = now.minute(); 
- int s = now.second(); 
- tft.setTextColor(ST77XX_WHITE)
 
- tft.setCursor(5,10)
- if (h>10){
-   tft.print("0");
- }
- tft.print(h)
- tft.testdrawtext(":", 7);
- 
-tft.setCursor(8,10) ; 
-  if (m>10){
-    tft.print("0");
- }
- tft.testdrawtext(":", 10);
- tft.print(m);
- 
-tft.setCursor(11,10);
- if (s>10){
-    tft.print("0");
- }
- tft.testdrawtext(s, 5);
+  
+ tft.println(rtc.getCurrentDateTime(),ST77XX_WHITE,6 );
 }
