@@ -57,8 +57,9 @@ float p = 3.1415926;
 int scroll = 0;
 int timeout = 0;
 String data;
-unsigned long duration;
 bool backlightOff = false;
+unsigned long timePressed;
+bool prevPressed = false;
   
 void setup()
 {
@@ -125,19 +126,21 @@ void setup()
  
 void loop() {
  
-  if (timeout <= 20000 && !backlightOff && digitalRead(button_pin) != 0) {
-    timeout++;
-    Serial.println("+1");
-    delay(1);
+  if (digitalRead(button_pin) == 0 && prevPressed == false){
+    timePressed = millis();
+    prevPressed = true;
   }
-  
-  
-  Serial.println(digitalRead(4));
-  delay(20);
 
-  duration = pulseIn(pin, LOW);
-  Serial.println(duration); 
-
+  if(digitalRead(button_pin) == 1 && prevPressed == true){
+    if (millis() - timePressed > 2000){
+       digitalWrite(backlight_pin,HIGH);
+       tft.fillScreen(ST77XX_BLACK);
+       bluetooth();
+       delay(5);
+       timeout = 0;
+    }
+    prevPressed = false;
+  }
   
   Serial.println(digitalRead(button_pin));
 
@@ -166,14 +169,6 @@ void loop() {
     delay(500);
     backlightOff = false;
   }
-   
-  if(duration >= 20000) {
-   digitalWrite(backlight_pin,HIGH);
-   tft.fillScreen(ST77XX_BLACK);
-   bluetooth();
-   delay(5);
-   timeout = 0;
-  } 
 
   if(timeout >= 20000) {
    digitalWrite(backlight_pin, LOW);
