@@ -2,7 +2,7 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
-
+#include <TFT.h>     
 
 
 #if defined(ARDUINO_FEATHER_ESP32) // Feather Huzzah32
@@ -27,7 +27,7 @@
 RV3028C7 rtc;
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
-float p = 3.1415926;
+float p = 3.1415927;
 
 
 void setup() {
@@ -46,8 +46,8 @@ void testdrawtext(String text, uint16_t color, int line) {
   tft.println(text);
 }
 void loop() {
-  rtc.updateTime()
- String currentTime = rtc.stringTimeStamp();
+  //rtc.updateTime()
+ String currentTime = rtc.getCurrentDateTime();
  testdrawtext(currentTime,ST77XX_WHITE, 10)
     
   
