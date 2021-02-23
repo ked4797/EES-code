@@ -8,6 +8,7 @@
 #include <bluefruit.h>
 #include <Adafruit_LittleFS.h>
 #include <InternalFileSystem.h>
+#include <SoftwareSerial.h>
 
 // oximeter setup
 #define REPORTING_PERIOD_MS     1000
@@ -50,6 +51,10 @@ BLEBas  blebas;  // battery
 #define backlight_pin 12
 #define button_pin 13
 
+#define txPin 3
+#define rxPin 4
+SoftwareSerial BLE(rxPin, txPin);// rx tx
+
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 
@@ -69,6 +74,8 @@ void setup()
 
   Serial.println(time, DEC);
   delay(500);
+  
+  BLE.begin(115200);
 
   // large block of text
   tft.fillScreen(ST77XX_BLACK);
@@ -281,11 +288,12 @@ void bluetooth() {
   Serial.println("Once connected, enter character(s) that you wish to send");
  
  // Forward from BLEUART to HW Serial
-  while ( bleuart.available() )
+  while ( BLE.available() )
   {
     pox.update();
-    data = "Steps taken: " + bluetoothstepcount() + "\nHeart rate: " + bluetoothheart() + "\nOxygen level: " + bluetoothoxygen() + "\n";
-    bleuart.println(data);
+    data = "Steps taken: " + bluetoothstepcount() + "\nHeart rate: " + bluetoothheart() + "\nOxygen level: " + bluetoothoxygen();
+    BLE.println(data);
+    delay(1);
   } 
 }
 
