@@ -136,6 +136,17 @@ void loop() {
        digitalWrite(backlight_pin,HIGH);
        tft.fillScreen(ST77XX_BLACK);
        bluetooth();
+       while ( !bleuart.available() && digitalRead(button_pin) == 1)
+       {
+        delay(1);
+       }
+       while ( bleuart.available() && digitalRead(button_pin) == 1)
+        {
+          delay(1000);
+          pox.update();
+          data = "Steps taken: " + bluetoothstepcount() + "\nHeart rate: " + bluetoothheart() + "\nOxygen level: " + bluetoothoxygen() + "\n";
+          bleuart.println(data);
+        } 
        delay(5);
        timeout = 0;
     }
@@ -176,6 +187,8 @@ void loop() {
    timeout = 0;
    backlightOff = true;
  }
+
+ delay(10);
 }
 
 void oximeterreadings() {
@@ -243,7 +256,7 @@ void bluetooth() {
   // Setup the BLE LED to be enabled on CONNECT
   // Note: This is actually the default behaviour, but provided
   // here in case you want to control this LED manually via PIN 19
-  Bluefruit.autoConnLed(true);
+  Bluefruit.autoConnLed(false);
 
   // Config the peripheral connection with maximum bandwidth 
   // more SRAM required by SoftDevice
@@ -277,14 +290,6 @@ void bluetooth() {
 
   Serial.println("Please use Adafruit's Bluefruit LE app to connect in UART mode");
   Serial.println("Once connected, enter character(s) that you wish to send");
- 
- // Forward from BLEUART to HW Serial
-  while ( bleuart.available() )
-  {
-    pox.update();
-    data = "Steps taken: " + bluetoothstepcount() + "\nHeart rate: " + bluetoothheart() + "\nOxygen level: " + bluetoothoxygen() + "\n";
-    bleuart.println(data);
-  } 
 }
 
 
