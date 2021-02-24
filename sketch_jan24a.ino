@@ -2,7 +2,7 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
-#include <boost/any.hpp>
+
 
 
 #if defined(ARDUINO_FEATHER_ESP32) // Feather Huzzah32
@@ -24,7 +24,7 @@
 #endif
 #include <RV3028C7.h>
 
-using boost::any_cast;
+
 RV3028C7 rtc;
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
@@ -36,6 +36,10 @@ void setup() {
   rtc.begin();
   tft.begin(240, 240);   
   Serial.begin(9600);
+  Serial.println("RV-3028-C7 Set Date Time Example");
+  Serial.println();
+
+  Wire.begin();
 
 }
 
@@ -46,8 +50,16 @@ void testdrawtext(boost::any text, uint16_t color, int line) {
   tft.setTextWrap(true);
   tft.println(text);
 }
+  while (rtc.begin() == false) {
+    Serial.println("Failed to detect RV-3028-C7!");
+    delay(5000);
+  }
+}
 void loop() {
+  
+  tft.println(rtc.getCurrentDateTime());
+  delay(1000);
 
   
- tft.println(rtc.getCurrentDateTime(),ST77XX_WHITE,6 );
+ 
 }
