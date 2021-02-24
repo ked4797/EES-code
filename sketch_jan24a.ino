@@ -3,7 +3,11 @@
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 #include <TFT.h>     
-
+#include <Wire.h>
+#include "Arduino.h"
+//#include <string.h> 
+//#include <iostream> 
+//using namespace std; 
 
 #if defined(ARDUINO_FEATHER_ESP32) // Feather Huzzah32
   #define TFT_CS         14
@@ -34,7 +38,7 @@ void setup() {
   rtc.begin();
   tft.begin(240, 240);   
   Serial.begin(9600);
-
+  Wire.begin();
 
 }
 
@@ -47,8 +51,12 @@ void testdrawtext(String text, uint16_t color, int line) {
 }
 void loop() {
   //rtc.updateTime()
- String currentTime = rtc.getCurrentDateTime();
- testdrawtext(currentTime,ST77XX_WHITE, 10)
+ String time = rtc.getCurrentDateTime();
+ String h= time.substr(9, 10); 
+  stringm = time.substr(11,12)
+ tft.println(h + ":");
+ testdrawtext(currentTime,ST77XX_WHITE, 10);
+  
     
   
 }
