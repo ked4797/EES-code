@@ -52,9 +52,9 @@ void testdrawtext(String text, uint16_t color, int line) {
 void loop() {
   //rtc.updateTime()
  String time = rtc.getCurrentDateTime();
- String h= time.substr(9, 10); 
-  stringm = time.substr(11,12)
- tft.println(h + ":");
+ String h= time.substr(13, 14); 
+ String m = time.substr(16,17)
+ tft.println(h + ":" +m);
  testdrawtext(currentTime,ST77XX_WHITE, 10);
   
     
