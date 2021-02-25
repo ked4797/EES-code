@@ -147,6 +147,7 @@ void loop() {
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      //Function for time goes here
+      time();
      Serial.println("Time displayed");
      scroll = 1;
     }
