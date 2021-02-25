@@ -8,7 +8,7 @@
 #include <bluefruit.h>
 #include <Adafruit_LittleFS.h>
 #include <InternalFileSystem.h>
-
+#include <RV3028C7.h>
 // oximeter setup
 #define REPORTING_PERIOD_MS     1000
 PulseOximeter pox;
@@ -51,6 +51,8 @@ BLEBas  blebas;  // battery
 #define button_pin 13
 
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
+
+RV3028C7 rtc;
 
 
 float p = 3.1415926;
@@ -138,7 +140,6 @@ void loop() {
   duration = pulseIn(pin, LOW);
   Serial.println(duration); 
 
-  
   Serial.println(digitalRead(button_pin));
 
   if (digitalRead(button_pin) == 0){
@@ -183,6 +184,9 @@ void loop() {
  }
 }
 
+
+
+
 void oximeterreadings() {
  
   // Make sure to call update as fast as possible
@@ -202,6 +206,19 @@ void oximeterreadings() {
       Serial.println("%");
       tsLastReport = millis();
   }
+}
+
+void time(){
+  
+  //String time = .rtc.getCurrentDateTime();
+  //String h= time.substrate(13, 14); 
+  //String m = time.substrate(16,17)
+ //tft.println(h + ":" +m);
+ //testdrawtext(currentTime,ST77XX_WHITE, 10);
+  
+  tft.println(rtc.getCurrentDateTime());
+  delay(1000);
+
 }
 
 // function for stepcount
