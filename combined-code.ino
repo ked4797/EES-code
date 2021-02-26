@@ -8,6 +8,7 @@
 #include <bluefruit.h>
 #include <Adafruit_LittleFS.h>
 #include <InternalFileSystem.h>
+#include <RV3028C7.h>
 
 // oximeter setup
 #define REPORTING_PERIOD_MS     1000
@@ -22,6 +23,8 @@ BLEDfu  bledfu;  // OTA DFU service
 BLEDis  bledis;  // device information
 BLEUart bleuart; // uart over ble
 BLEBas  blebas;  // battery
+
+RV3028C7 rtc;
 
 // display variables
 #define LSM_CS 12
@@ -65,6 +68,13 @@ void setup()
 {
   Serial.begin(9600);
   tft.init(240, 240);
+
+  Wire.begin();
+
+  while (rtc.begin() == false) {
+    Serial.println("Failed to detect RV-3028-C7!");
+    delay(5000);
+  }
   
   uint16_t time = millis();
   time = millis() - time;
@@ -159,7 +169,7 @@ void loop() {
     if (scroll == 0){
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
-     //Function for time goes here
+     showTime();
      Serial.println("Time displayed");
      scroll = 1;
     }
@@ -185,11 +195,14 @@ void loop() {
    digitalWrite(backlight_pin, LOW);
    Serial.println("Backlight off");
    timeout = 0;
+   scroll = 0;
    backlightOff = true;
  }
 
  delay(10);
 }
+
+
 
 void oximeterreadings() {
  
@@ -212,6 +225,8 @@ void oximeterreadings() {
   }
 }
 
+
+
 // function for stepcount
 void stepcount() {
  int stepcount = lsm.readPedometer();
@@ -219,12 +234,16 @@ void stepcount() {
  testdrawtext(stepcountString, ST77XX_WHITE, 10);
 }
 
+
+
 // function for stepcount for bluetooth
 String bluetoothstepcount() {
  int stepcount = lsm.readPedometer();
  String stepcountString = String(stepcount);
  return stepcountString;
  }
+
+
 
 String bluetoothheart() {
   // Make sure to call update as fast as possible
@@ -246,6 +265,17 @@ String bluetoothoxygen() {
       tsLastReport = millis();
       return SpO2String;
   }
+}
+
+void showTime(){
+  //String time = .rtc.getCurrentDateTime();
+  //String h= time.substrate(13, 14); 
+  //String m = time.substrate(16,17)
+ //tft.println(h + ":" +m);
+ //testdrawtext(currentTime,ST77XX_WHITE, 10);
+  
+  testdrawtext(String(rtc.getCurrentDateTime()), ST77XX_WHITE, 3);
+  delay(1000);
 }
 
 void bluetooth() {
