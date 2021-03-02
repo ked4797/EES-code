@@ -202,6 +202,7 @@ void loop() {
    timeout = 0;
    scroll = 0;
    backlightOff = true;
+   pox.shutdown();
  }
 }
 
