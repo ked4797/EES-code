@@ -179,6 +179,7 @@ void loop() {
      showTime();
      Serial.println("Time displayed");
      scroll = 1;
+     delay(500);
      heartoxysensor = 0;
     }
     else if (scroll == 1){
@@ -186,15 +187,17 @@ void loop() {
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
+     delay(500);
      heartoxysensor = 0;
     }
     else if (scroll == 2)
     {
      digitalWrite(backlight_pin,HIGH);
+     delay(500)
+     heartoxysensor = 1;
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0;
-     heartoxysensor = 1;
     }
     timeout = 0;
     delay(500);
