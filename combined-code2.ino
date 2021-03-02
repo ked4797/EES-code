@@ -8,7 +8,7 @@
 #include <bluefruit.h>
 #include <Adafruit_LittleFS.h>
 #include <InternalFileSystem.h>
-#include <SoftwareSerial.h>
+#include <RV3028C7.h>
 
 // oximeter setup
 #define REPORTING_PERIOD_MS     1000
@@ -23,6 +23,8 @@ BLEDfu  bledfu;  // OTA DFU service
 BLEDis  bledis;  // device information
 BLEUart bleuart; // uart over ble
 BLEBas  blebas;  // battery
+
+RV3028C7 rtc;
 
 // display variables
 #define LSM_CS 12
@@ -51,10 +53,6 @@ BLEBas  blebas;  // battery
 #define backlight_pin 12
 #define button_pin 13
 
-#define txPin 3
-#define rxPin 4
-SoftwareSerial BLE(rxPin, txPin);// rx tx
-
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 
@@ -63,19 +61,27 @@ int scroll = 0;
 int timeout = 0;
 String data;
 bool backlightOff = false;
+unsigned long timePressed;
+bool prevPressed = false;
+int heartoxysensor = 0;
   
 void setup()
 {
   Serial.begin(9600);
   tft.init(240, 240);
+
+  Wire.begin();
+
+  while (rtc.begin() == false) {
+    Serial.println("Failed to detect RV-3028-C7!");
+    delay(5000);
+  }
   
   uint16_t time = millis();
   time = millis() - time;
 
   Serial.println(time, DEC);
   delay(500);
-  
-  BLE.begin(115200);
 
   // large block of text
   tft.fillScreen(ST77XX_BLACK);
@@ -131,61 +137,82 @@ void setup()
  
 void loop() {
  
-  if (timeout <= 20000 && !backlightOff && digitalRead(button_pin) != 0) {
-    timeout++;
-    Serial.println("+1");
-    delay(1);
+  if (digitalRead(button_pin) == 0 && prevPressed == false){
+    timePressed = millis();
+    prevPressed = true;
+  }
+
+   if (timeout <= 20000 && !backlightOff && digitalRead(button_pin) != 0) { 
+    timeout++;      
+    Serial.println(timeout);   
+    delay(1); 
+  }
+
+  if(digitalRead(button_pin) == 1 && prevPressed == true){
+    if (millis() - timePressed > 2000){
+       digitalWrite(backlight_pin,HIGH);
+       tft.fillScreen(ST77XX_BLACK);
+       bluetooth();
+       while ( !bleuart.available() && digitalRead(button_pin) == 1)
+       {
+        delay(1);
+       }
+       while ( bleuart.available() && digitalRead(button_pin) == 1)
+        {
+          delay(1000);
+          pox.update();
+          data = "Steps taken: " + bluetoothstepcount() + "\nHeart rate: " + bluetoothheart() + "\nOxygen level: " + bluetoothoxygen() + "\n";
+          bleuart.println(data);
+        } 
+       delay(5);
+       timeout = 0;
+    }
+    prevPressed = false;
   }
   
-  Serial.println(digitalRead(4));
-  delay(20);
-
   Serial.println(digitalRead(button_pin));
 
   if (digitalRead(button_pin) == 0){
-    if (scroll == 0)
-    {
+    if (scroll == 0){
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
-     //Function for time goes here
+     showTime();
      Serial.println("Time displayed");
      scroll = 1;
+     pox.shutdown();
     }
-    else if (scroll == 1)
-    {
+    else if (scroll == 1){
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
+     pox.shutdown();
     }
     else if (scroll == 2)
     {
      digitalWrite(backlight_pin,HIGH);
      //Fill screen is already included in function
      oximeterreadings();
-     scroll = 3;
-    }
-    else if (scroll == 3)
-    {
-     digitalWrite(backlight_pin,HIGH);
-     tft.fillScreen(ST77XX_BLACK);
-     String bluetextString = "Data has been sent to your app";
-     testdrawtext(bluetextString, ST77XX_WHITE, 10);
-     bluetooth();
      scroll = 0;
+     pox.resume();
     }
     timeout = 0;
     delay(500);
     backlightOff = false;
   }
-   
+
   if(timeout >= 20000) {
    digitalWrite(backlight_pin, LOW);
    Serial.println("Backlight off");
    timeout = 0;
+   scroll = 0;
+   pox.shutdown();
    backlightOff = true;
  }
+ 
 }
+
+
 
 void oximeterreadings() {
  
@@ -208,6 +235,8 @@ void oximeterreadings() {
   }
 }
 
+
+
 // function for stepcount
 void stepcount() {
  int stepcount = lsm.readPedometer();
@@ -215,12 +244,16 @@ void stepcount() {
  testdrawtext(stepcountString, ST77XX_WHITE, 10);
 }
 
+
+
 // function for stepcount for bluetooth
 String bluetoothstepcount() {
  int stepcount = lsm.readPedometer();
  String stepcountString = String(stepcount);
  return stepcountString;
  }
+
+
 
 String bluetoothheart() {
   // Make sure to call update as fast as possible
@@ -244,6 +277,17 @@ String bluetoothoxygen() {
   }
 }
 
+void showTime(){
+  //String time = .rtc.getCurrentDateTime();
+  //String h= time.substrate(13, 14); 
+  //String m = time.substrate(16,17)
+ //tft.println(h + ":" +m);
+ //testdrawtext(currentTime,ST77XX_WHITE, 10);
+  
+  testdrawtext(String(rtc.getCurrentDateTime()), ST77XX_WHITE, 3);
+  delay(1000);
+}
+
 void bluetooth() {
  
   Serial.println("Bluefruit52 BLEUART Example");
@@ -252,7 +296,7 @@ void bluetooth() {
   // Setup the BLE LED to be enabled on CONNECT
   // Note: This is actually the default behaviour, but provided
   // here in case you want to control this LED manually via PIN 19
-  Bluefruit.autoConnLed(true);
+  Bluefruit.autoConnLed(false);
 
   // Config the peripheral connection with maximum bandwidth 
   // more SRAM required by SoftDevice
@@ -286,15 +330,6 @@ void bluetooth() {
 
   Serial.println("Please use Adafruit's Bluefruit LE app to connect in UART mode");
   Serial.println("Once connected, enter character(s) that you wish to send");
- 
- // Forward from BLEUART to HW Serial
-  while ( BLE.available() )
-  {
-    pox.update();
-    data = "Steps taken: " + bluetoothstepcount() + "\nHeart rate: " + bluetoothheart() + "\nOxygen level: " + bluetoothoxygen();
-    BLE.println(data);
-    delay(1);
-  } 
 }
 
 
