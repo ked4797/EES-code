@@ -63,7 +63,6 @@ String data;
 bool backlightOff = false;
 unsigned long timePressed;
 bool prevPressed = false;
-int heartoxysensor = 0;
   
 void setup()
 {
@@ -130,10 +129,6 @@ void setup()
   pinMode(button_pin, INPUT_PULLUP);
 }
 
-
-
-
-
  
 void loop() {
  
@@ -179,25 +174,22 @@ void loop() {
      showTime();
      Serial.println("Time displayed");
      scroll = 1;
-     delay(500);
-     heartoxysensor = 0;
+     pox.shutdown();
     }
     else if (scroll == 1){
      digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
-     delay(500);
-     heartoxysensor = 0;
+     pox.shutdown();
     }
     else if (scroll == 2)
     {
      digitalWrite(backlight_pin,HIGH);
-     delay(500)
-     heartoxysensor = 1;
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0;
+     pox.resume();
     }
     timeout = 0;
     delay(500);
@@ -211,13 +203,6 @@ void loop() {
    scroll = 0;
    backlightOff = true;
  }
-  
-  if(heartoxysensor == 0) {
-   pox.shutdown();
-  } 
-  else if(heartoxysensor == 1) {
-     pox.resume();
-  }
 }
 
 
