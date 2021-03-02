@@ -63,7 +63,7 @@ String data;
 bool backlightOff = false;
 unsigned long timePressed;
 bool prevPressed = false;
-int heartoxysensor;
+int heartoxysensor = 0;
   
 void setup()
 {
