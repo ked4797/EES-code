@@ -142,6 +142,12 @@ void loop() {
     prevPressed = true;
   }
 
+   if (timeout <= 20000 && !backlightOff && digitalRead(button_pin) != 0) { 
+    timeout++;      
+    Serial.println(timeout);   
+    delay(1); 
+  }
+
   if(digitalRead(button_pin) == 1 && prevPressed == true){
     if (millis() - timePressed > 2000){
        digitalWrite(backlight_pin,HIGH);
@@ -204,14 +210,12 @@ void loop() {
    backlightOff = true;
  }
   
-  if(heartoxysensor = 0) {
+  if(heartoxysensor == 0) {
    pox.shutdown();
   } 
-  else if(heartoxysensor = 1) {
+  else if(heartoxysensor == 1) {
      pox.resume();
   }
-
- delay(10);
 }
 
 
