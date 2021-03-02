@@ -206,7 +206,6 @@ void loop() {
    Serial.println("Backlight off");
    timeout = 0;
    scroll = 0;
-   heartoxysensor = 0;
    backlightOff = true;
  }
   
