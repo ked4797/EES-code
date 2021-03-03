@@ -166,6 +166,10 @@ void loop() {
   }
   
   Serial.println(digitalRead(button_pin));
+  
+  while (backlightOff = false && scroll == 2) {
+    pox.update();
+  }
 
   if (digitalRead(button_pin) == 0){
     if (scroll == 0){
