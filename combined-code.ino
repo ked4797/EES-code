@@ -225,10 +225,10 @@ void oximeterreadings() {
     pox.update();
     delay(10000);
     
-    if (String(heartRate) != 0) {
+    if (String(heartRate) != "0") {
     detection = 1;
   }
-    if(String(SpO2) != 0) {
+    if(String(SpO2) != "0") {
     detection = 1;
   }
  }
