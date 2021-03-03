@@ -191,7 +191,6 @@ void loop() {
      //Fill screen is already included in function
      oximeterreadings();
      scroll = 0;
-     pox.resume();
     }
     timeout = 0;
     delay(500);
@@ -221,6 +220,7 @@ void oximeterreadings() {
   while (detection == 0) {
     String waiting = "Detecting pulse and oxygen...";
     testdrawtext(waiting, ST77XX_WHITE, 10);
+    pox.resume();
     pox.update();
     delay(10000);
     
