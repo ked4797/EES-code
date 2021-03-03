@@ -237,7 +237,7 @@ void oximeterreadings() {
       tft.fillScreen(ST77XX_BLACK);
       String heartRateString = "Heart rate: " + String(heartRate);
       String noheartrate = "No pulse detected.";
-    if (String(heartRate) == 0) {
+    if (String(heartRate) == "0") {
       testdrawtext(noheartrate, ST77XX_WHITE, 6);
       delay(10000);
       detection = 0;
@@ -249,7 +249,7 @@ void oximeterreadings() {
     }
       String SpO2String = "Oxygen level:" + String(SpO2);
       String nooxygen = "No oxygen level detected.";
-    if (String(SpO2) == 0) {
+    if (String(SpO2) == "0") {
       testdrawtext(nooxygen, ST77XX_WHITE, 11);
       delay(10000);
       detection = 0;
