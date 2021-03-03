@@ -214,6 +214,10 @@ void oximeterreadings() {
  
   // Make sure to call update as fast as possible
   tft.fillScreen(ST77XX_BLACK);
+  
+  int heartRate = int(pox.getHeartRate());
+  int SpO2 = int(pox.getSpO2());
+  
   while (detection == 0) {
     String waiting = "Detecting pulse and oxygen...";
     testdrawtext(waiting, ST77XX_WHITE, 10);
@@ -231,7 +235,6 @@ void oximeterreadings() {
   pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       tft.fillScreen(ST77XX_BLACK);
-      int heartRate = int(pox.getHeartRate());
       String heartRateString = "Heart rate: " + String(heartRate);
       String noheartrate = "No pulse detected.";
     if (String(heartRate) == 0) {
@@ -244,7 +247,6 @@ void oximeterreadings() {
       Serial.print(pox.getHeartRate());
       detection = 1;
     }
-      int SpO2 = int(pox.getSpO2());
       String SpO2String = "Oxygen level:" + String(SpO2);
       String nooxygen = "No oxygen level detected.";
     if (String(SpO2) == 0) {
