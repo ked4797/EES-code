@@ -211,20 +211,34 @@ void loop() {
 void oximeterreadings() {
  
   // Make sure to call update as fast as possible
+  tft.fillScreen(ST77XX_BLACK);
+  String waiting = "Detecting pulse and oxygen...";
+  testdrawtext(waiting, ST77XX_WHITE, 10);
+  delay(10000)
   pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       tft.fillScreen(ST77XX_BLACK);
       int heartRate = int(pox.getHeartRate());
       String heartRateString = "Heart rate: " + String(heartRate);
+      String noheartrate = "No pulse detected.";
+    if (String(heartRate) == 0) {
+      testdrawtext(noheartrate, ST77XX_WHITE, 6);
+    } else {
       testdrawtext(heartRateString, ST77XX_WHITE, 6);
       Serial.print("Heart rate:");
       Serial.print(pox.getHeartRate());
+    }
       int SpO2 = int(pox.getSpO2());
       String SpO2String = "Oxygen level:" + String(SpO2);
+      String nooxygen = "No oxygen level detected.";
+    if (String(SpO2) == 0) {
+      testdrawtext(nooxygen, ST77XX_WHITE, 11);
+    } else {
       testdrawtext(SpO2String, ST77XX_WHITE, 11);
       Serial.print("bpm / SpO2:");
       Serial.print(pox.getSpO2());
       Serial.println("%");
+    }
       tsLastReport = millis();
   }
 }
