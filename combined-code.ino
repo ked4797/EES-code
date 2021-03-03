@@ -63,6 +63,7 @@ String data;
 bool backlightOff = false;
 unsigned long timePressed;
 bool prevPressed = false;
+int detection = 0;
   
 void setup()
 {
@@ -131,6 +132,10 @@ void setup()
 
  
 void loop() {
+  
+  while (detection == 0) {
+    pox.update();
+  }
  
   if (digitalRead(button_pin) == 0 && prevPressed == false){
     timePressed = millis();
@@ -167,9 +172,6 @@ void loop() {
   
   Serial.println(digitalRead(button_pin));
   
-  while (backlightOff = false && scroll == 2) {
-    pox.update();
-  }
 
   if (digitalRead(button_pin) == 0){
     if (scroll == 0){
@@ -216,10 +218,13 @@ void oximeterreadings() {
  
   // Make sure to call update as fast as possible
   tft.fillScreen(ST77XX_BLACK);
-  String waiting = "Detecting pulse and oxygen...";
-  testdrawtext(waiting, ST77XX_WHITE, 10);
+  while (detection == 0) {
+    String waiting = "Detecting pulse and oxygen...";
+    testdrawtext(waiting, ST77XX_WHITE, 10);
+    pox.update();
+    delay(10000);
+  }
   pox.update();
-  delay(10000)
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       tft.fillScreen(ST77XX_BLACK);
       int heartRate = int(pox.getHeartRate());
@@ -227,21 +232,27 @@ void oximeterreadings() {
       String noheartrate = "No pulse detected.";
     if (String(heartRate) == 0) {
       testdrawtext(noheartrate, ST77XX_WHITE, 6);
+      delay(10000);
+      detection = 0;
     } else {
       testdrawtext(heartRateString, ST77XX_WHITE, 6);
       Serial.print("Heart rate:");
       Serial.print(pox.getHeartRate());
+      detection = 1;
     }
       int SpO2 = int(pox.getSpO2());
       String SpO2String = "Oxygen level:" + String(SpO2);
       String nooxygen = "No oxygen level detected.";
     if (String(SpO2) == 0) {
       testdrawtext(nooxygen, ST77XX_WHITE, 11);
+      delay(10000);
+      detection = 0;
     } else {
       testdrawtext(SpO2String, ST77XX_WHITE, 11);
       Serial.print("bpm / SpO2:");
       Serial.print(pox.getSpO2());
       Serial.println("%");
+      detection = 1;
     }
       tsLastReport = millis();
   }
