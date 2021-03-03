@@ -214,8 +214,8 @@ void oximeterreadings() {
   tft.fillScreen(ST77XX_BLACK);
   String waiting = "Detecting pulse and oxygen...";
   testdrawtext(waiting, ST77XX_WHITE, 10);
-  delay(10000)
   pox.update();
+  delay(10000)
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       tft.fillScreen(ST77XX_BLACK);
       int heartRate = int(pox.getHeartRate());
