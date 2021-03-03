@@ -214,13 +214,14 @@ void oximeterreadings() {
   // Make sure to call update as fast as possible
   tft.fillScreen(ST77XX_BLACK);
   
+  pox.resume();
+  
   int heartRate = int(pox.getHeartRate());
   int SpO2 = int(pox.getSpO2());
   
   while (detection == 0) {
     String waiting = "Detecting pulse and oxygen...";
     testdrawtext(waiting, ST77XX_WHITE, 10);
-    pox.resume();
     pox.update();
     delay(10000);
     
