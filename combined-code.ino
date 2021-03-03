@@ -132,10 +132,6 @@ void setup()
 
  
 void loop() {
-  
-  while (detection == 0) {
-    pox.update();
-  }
  
   if (digitalRead(button_pin) == 0 && prevPressed == false){
     timePressed = millis();
@@ -218,12 +214,20 @@ void oximeterreadings() {
  
   // Make sure to call update as fast as possible
   tft.fillScreen(ST77XX_BLACK);
-  while (detection == 0 && scroll == 2) {
+  while (detection == 0) {
     String waiting = "Detecting pulse and oxygen...";
     testdrawtext(waiting, ST77XX_WHITE, 10);
     pox.update();
     delay(10000);
+    
+    if (String(heartRate) != 0) {
+    detection = 1;
   }
+    if(String(SpO2) != 0) {
+    detection = 1;
+  }
+ }
+  
   pox.update();
   if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
       tft.fillScreen(ST77XX_BLACK);
