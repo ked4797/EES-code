@@ -218,7 +218,7 @@ void oximeterreadings() {
  
   // Make sure to call update as fast as possible
   tft.fillScreen(ST77XX_BLACK);
-  while (detection == 0) {
+  while (detection == 0 && scroll == 2) {
     String waiting = "Detecting pulse and oxygen...";
     testdrawtext(waiting, ST77XX_WHITE, 10);
     pox.update();
