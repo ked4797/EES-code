@@ -308,13 +308,13 @@ String bluetoothoxygen() {
 }
 
 void showTime(){
-  //String time = .rtc.getCurrentDateTime();
-  //String h= time.substrate(13, 14); 
+  String time = String(rtc.getCurrentDateTime());
+  String currentTime= time.substrate(13, 17); 
   //String m = time.substrate(16,17)
- //tft.println(h + ":" +m);
+  //tft.println(h + ":" +m);
  //testdrawtext(currentTime,ST77XX_WHITE, 10);
   
-  testdrawtext(String(rtc.getCurrentDateTime()), ST77XX_WHITE, 3);
+  testdrawtext(String(currentTime, ST77XX_WHITE, 3);
   delay(1000);
 }
 
