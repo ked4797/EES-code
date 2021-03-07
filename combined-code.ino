@@ -67,7 +67,7 @@ int detection = 0;
   
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   tft.init(240, 240);
 
   Wire.begin();
@@ -212,9 +212,10 @@ void loop() {
 void oximeterreadings() {
  
   // Make sure to call update as fast as possible
-  tft.fillScreen(ST77XX_BLACK);
-  
+  Serial.begin(9600);
   pox.resume();
+  
+  tft.fillScreen(ST77XX_BLACK);
   
   int heartRate = int(pox.getHeartRate());
   int SpO2 = int(pox.getSpO2());
