@@ -223,7 +223,7 @@ void oximeterreadings() {
     String waiting = "Detecting pulse and oxygen...";
     testdrawtext(waiting, ST77XX_WHITE, 10);
     pox.update();
-    delay(10000);
+    delay(20000);
     
     if (String(heartRate) != "0") {
     detection = 1;
