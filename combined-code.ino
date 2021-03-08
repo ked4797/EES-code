@@ -61,75 +61,48 @@ int scroll = 0;
 int timeout = 0;
 String data;
 bool backlightOff = false;
+bool beatDetected = false;
 unsigned long timePressed;
 bool prevPressed = false;
 int detection = 0;
-  
-void setup()
-{
+int heartRate = 0;
+int SpO2;
+String heartRateString;
+String SpO2String;
+
+void setup() {
   Serial.begin(9600);
-  tft.init(240, 240);
-
   Wire.begin();
-
-  while (rtc.begin() == false) {
-    Serial.println("Failed to detect RV-3028-C7!");
-    delay(5000);
-  }
-  
-  uint16_t time = millis();
-  time = millis() - time;
-
-  Serial.println(time, DEC);
-  delay(500);
-
-  // large block of text
+  tft.init(240,240);
   tft.fillScreen(ST77XX_BLACK);
-  delay(1000);
-  Serial.println("done");
-  delay(1000);
-  
-  Serial.print("Initializing pulse oximeter..");
-  
-  // Initialize the PulseOximeter instance
-  // Failures are generally due to an improper I2C wiring, missing power supply
-  // or wrong target chip
-  if (!pox.begin()) {
-     Serial.println("FAILED");
-     for(;;);
+  while (rtc.begin() == false){
+    Serial.println("Failed to detect RV-3028-C7!");
+  }
+  if (!pox.begin()){
+    Serial.println("Oximeter failed");
+    for(;;);
   } else {
-     Serial.println("SUCCESS");
+    Serial.println("Oximeter success");
   }
   pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
-  
-  // Register a callback for the beat detection
   pox.setOnBeatDetectedCallback(onBeatDetected);
-
- if (!lsm.begin_I2C()) {
-    Serial.println("Failed to find LSM6DS33 chip");
-    while (1) {
-      delay(10);
-    }
+  pox.shutdown();
+  delay(500);
+  pox.resume();
+  if (!lsm.begin_I2C()) {
+    Serial.println("Failed to find LSM6DSOX chip");
+  } else {
+    Serial.println("LSM6DSOX found!");
   }
-  
-  Serial.println("LSM6DS33 Found!");
-
-  // Set to 2G range and 26 Hz update rate
   lsm.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
   lsm.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);
   lsm.setAccelDataRate(LSM6DS_RATE_26_HZ);
   lsm.setGyroDataRate(LSM6DS_RATE_26_HZ);
-
-  // step detect output on INT1
   lsm.configInt1(false, false, false, true);
-
-  // turn it on!
   lsm.enablePedometer(true);
- 
   pinMode(backlight_pin, OUTPUT);
   pinMode(button_pin, INPUT_PULLUP);
 }
-
  
 void loop() {
  
@@ -170,8 +143,8 @@ void loop() {
   
 
   if (digitalRead(button_pin) == 0){
+    digitalWrite(backlight_pin, HIGH);
     if (scroll == 0){
-     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      showTime();
      Serial.println("Time displayed");
@@ -179,7 +152,6 @@ void loop() {
      pox.shutdown();
     }
     else if (scroll == 1){
-     digitalWrite(backlight_pin,HIGH);
      tft.fillScreen(ST77XX_BLACK);
      stepcount();
      scroll = 2;
@@ -187,10 +159,23 @@ void loop() {
     }
     else if (scroll == 2)
     {
-     digitalWrite(backlight_pin,HIGH);
-     //Fill screen is already included in function
-     oximeterreadings();
-     scroll = 0;
+    tft.fillScreen(ST77XX_BLACK); 
+    pox.resume();
+    while (!beatDetected){
+      pox.update();
+      heartRate = int(pox.getHeartRate());
+      SpO2 = int(pox.getSpO2());
+      Serial.print("Heart rate: ");
+      Serial.println(heartRate);
+      Serial.println(SpO2);
+      delay(1);
+      if (String(heartRate) != "0"){
+        beatDetected = true;
+      }
+    }
+    drawtext(String(heartRate), ST77XX_WHITE, 6);
+    drawtext(String(SpO2), ST77XX_WHITE, 11);
+    scroll = 0;
     }
     timeout = 0;
     delay(500);
@@ -210,59 +195,24 @@ void loop() {
 
 
 void oximeterreadings() {
- 
-  // Make sure to call update as fast as possible
-  tft.fillScreen(ST77XX_BLACK);
-  
-  pox.resume();
-  
-  int heartRate = int(pox.getHeartRate());
-  int SpO2 = int(pox.getSpO2());
-  
-  while (detection == 0) {
-    String waiting = "Detecting pulse and oxygen...";
-    testdrawtext(waiting, ST77XX_WHITE, 10);
-    pox.update();
-    delay(20000);
-    
-    if (String(heartRate) != "0") {
-    detection = 1;
-  }
-    if(String(SpO2) != "0") {
-    detection = 1;
-  }
- }
-  
-  pox.update();
-  if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-      tft.fillScreen(ST77XX_BLACK);
-      String heartRateString = "Heart rate: " + String(heartRate);
-      String noheartrate = "No pulse detected.";
-    if (String(heartRate) == "0") {
-      testdrawtext(noheartrate, ST77XX_WHITE, 6);
-      delay(10000);
-      detection = 0;
-    } else {
-      testdrawtext(heartRateString, ST77XX_WHITE, 6);
-      Serial.print("Heart rate:");
-      Serial.print(pox.getHeartRate());
-      detection = 1;
+  while(heartRate < 1){
+      pox.update();
+      if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+          Serial.print("Heart rate:");
+          Serial.print(pox.getHeartRate());
+          Serial.print("bpm / SpO2:");
+          Serial.print(pox.getSpO2());
+          Serial.println("%");
+          heartRate = pox.getHeartRate();
+          SpO2 = pox.getSpO2();
+          tsLastReport = millis();
+      }
+      delay(10);
     }
-      String SpO2String = "Oxygen level:" + String(SpO2);
-      String nooxygen = "No oxygen level detected.";
-    if (String(SpO2) == "0") {
-      testdrawtext(nooxygen, ST77XX_WHITE, 11);
-      delay(10000);
-      detection = 0;
-    } else {
-      testdrawtext(SpO2String, ST77XX_WHITE, 11);
-      Serial.print("bpm / SpO2:");
-      Serial.print(pox.getSpO2());
-      Serial.println("%");
-      detection = 1;
-    }
-      tsLastReport = millis();
-  }
+  Serial.println(heartRate);
+  Serial.println(SpO2);
+  drawtext(String(heartRate), ST77XX_WHITE, 6);
+  drawtext(String(SpO2), ST77XX_WHITE, 11);
 }
 
 
@@ -271,7 +221,7 @@ void oximeterreadings() {
 void stepcount() {
  int stepcount = lsm.readPedometer();
  String stepcountString = "Steps taken: "+ String(stepcount);
- testdrawtext(stepcountString, ST77XX_WHITE, 10);
+ drawtext(stepcountString, ST77XX_WHITE, 10);
 }
 
 
@@ -312,9 +262,9 @@ void showTime(){
   //String h= time.substrate(13, 14); 
   //String m = time.substrate(16,17)
  //tft.println(h + ":" +m);
- //testdrawtext(currentTime,ST77XX_WHITE, 10);
+ //drawtext(currentTime,ST77XX_WHITE, 10);
   
-  testdrawtext(String(rtc.getCurrentDateTime()), ST77XX_WHITE, 3);
+  drawtext(String(rtc.getCurrentDateTime()), ST77XX_WHITE, 3);
   delay(1000);
 }
 
@@ -363,7 +313,7 @@ void bluetooth() {
 }
 
 
-void testdrawtext(String text, uint16_t color, int line) {
+void drawtext(String text, uint16_t color, int line) {
   tft.setCursor(0, line*10);
   tft.setTextColor(color);
   tft.setTextSize(3);
